@@ -115,7 +115,7 @@ class LancerInitiative {
     static handleUpdateCombat(combat, changed, options, userId) {
         if ("round" in changed) {
             combat.combatants.map(c =>
-                combat.setFlag("lancer-initiative", c._id, { acted: false })
+                combat.setFlag("lancer-initiative", c._id, { acted: c?.defeated ? true : false })
             );
             if (combat.combatants?.filter(c => c.token === null).length === 0) {
                 combat.createCombatant({ name: "DUMMY" });

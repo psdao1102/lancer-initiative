@@ -12,6 +12,6 @@ Known issues
 ------------
 
  * Not all initiative modules handle the empty combatant this module adds correctly.
- * Defeated units aren't handled.
+ * Duplicates aren't all simultaneously marked defeated.
 
-TODO: Remaining actions instead of multiple entries
+<!-- TODO: Remaining actions instead of multiple entries -->
