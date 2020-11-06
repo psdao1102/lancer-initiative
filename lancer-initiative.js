@@ -96,7 +96,7 @@ class LancerInitiative {
             },
             {
                 name: "Undo Activation",
-                icon: '<i class="fas fa-edit"></i>',
+                icon: '<i class="fas fa-undo"></i>',
                 callback: li => this.combat.setFlag("lancer-initiative", li.data('combatant-id'), { acted: false })
             },
             {
