@@ -1,11 +1,16 @@
 {
     "name": "lancer-initiative",
     "title": "LANCER Initiative",
+    "description": "Implements LANCER's popcorn style initiative in Foundry VTT",
+    "author": "Bolts",
     "type": "module",
     "version": "0.1.0",
     "minimumCoreVersion": "0.6.6",
     "compatibleCoreVersion": "0.7.5",
     "esmodules": [
         "./lancer-initiative.js"
-    ]
+    ],
+    "url": "https://github.com/BoltsJ/lancer-initiative.git",
+    "manifest": "",
+    "download": ""
 }
