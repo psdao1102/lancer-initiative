@@ -11,7 +11,7 @@ A very hacky implementation of LANCER's initiative system for Foundry VTT. LANCE
 Known issues
 ------------
 
- * Starting a new round sets the initiative to the first token. Modules like **Turn Marker** will erroneously show that token as active. For now, adding a friendly token named `0` or something that will sort first to the combat can work around this.
+ * Not all initiative modules handle the empty combatant this module adds correctly.
  * Defeated units aren't handled.
 
 TODO: Remaining actions instead of multiple entries

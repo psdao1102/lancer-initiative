@@ -59,6 +59,11 @@ class LancerInitiative {
     }
 
     static sortCombatants(a, b) {
+        //DUMMYs first ;)
+        if ( a.token === null ) return -1;
+        if ( b.token === null ) return 1;
+
+        // Move inactive to the bottom
         if ( game.settings.get("lancer-initiative", "act-sort-last") ) {
             const act_a = game.combat.getFlag("lancer-initiative", a._id)?.acted;
             const act_b = game.combat.getFlag("lancer-initiative", b._id)?.acted;
@@ -90,6 +95,11 @@ class LancerInitiative {
                 }
             },
             {
+                name: "Undo Activation",
+                icon: '<i class="fas fa-edit"></i>',
+                callback: li => this.combat.setFlag("lancer-initiative", li.data('combatant-id'), { acted: false })
+            },
+            {
                 name: "COMBAT.CombatantUpdate",
                 icon: '<i class="fas fa-edit"></i>',
                 callback: this._onConfigureCombatant.bind(this)
@@ -107,8 +117,10 @@ class LancerInitiative {
             combat.combatants.map(c =>
                 combat.setFlag("lancer-initiative", c._id, { acted: false })
             );
+            if (combat.combatants?.filter(c => c.token === null).length === 0) {
+                combat.createCombatant({ name: "DUMMY" });
+            }
         }
-
     }
 }
 
@@ -120,6 +132,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     html.find(".combatant").each((i, element) => {
         const c_id = element.dataset.combatantId;
         const combatant = data.combat.data.combatants.find(c => c._id === c_id);
+
+        if ( combatant.token === null) {
+            element.style.display = "none";
+            return;
+        }
 
         const init_div = element.getElementsByClassName("token-initiative")[0];
 
@@ -142,17 +159,21 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
                     // error or something
             }
         }
+        // TODO: Configurable icon
         init_div.innerHTML = `<a class='cci cci-activate' title='Activate' style='color: ${color}; font-size: x-large;'></a>`;
-
 
         init_div.addEventListener("click", async e => {
             if (data.combat.getFlag("lancer-initiative", c_id)?.acted) { return; }
             await data.combat.setFlag("lancer-initiative", c_id, { acted: true });
-
             const turn = data.combat.turns.findIndex(t => t._id === c_id);
-
             await data.combat.update({ turn: turn });
         });
+    });
+
+    html.find(".combat-control").each((i, e) => {
+        if (e.dataset.control === "previousTurn" || e.dataset.control === "nextTurn") {
+            e.style.display = "none";
+        }
     });
 });
 
