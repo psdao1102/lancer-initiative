@@ -8,6 +8,8 @@ A very hacky implementation of LANCER's initiative system for Foundry VTT. LANCE
  * Adds an Add Activation button to the right-click menu to support tokens with multiple activations such as Ultra templated NPCs.
  * Optionally moves activated units to the bottom of the tracker.
 
+![Screenshot](https://github.com/BoltsJ/lancer-initiative/blob/default/screenshot.png?raw=true)
+
 Known issues
 ------------
 
