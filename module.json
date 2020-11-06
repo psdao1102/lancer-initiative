@@ -1,0 +1,11 @@
+{
+    "name": "lancer-initiative",
+    "title": "LANCER Initiative",
+    "type": "module",
+    "version": "0.1.0",
+    "minimumCoreVersion": "0.6.6",
+    "compatibleCoreVersion": "0.7.5",
+    "esmodules": [
+        "./lancer-initiative.js"
+    ]
+}
