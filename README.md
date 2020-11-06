@@ -10,6 +10,11 @@ A very hacky implementation of LANCER's initiative system for Foundry VTT. LANCE
 
 ![Screenshot](https://github.com/BoltsJ/lancer-initiative/blob/default/screenshot.png?raw=true)
 
+Installation
+------------
+
+Paste the following url into the install module dialog in Foundry VTT: https://github.com/BoltsJ/lancer-initiative/releases/latest/download/module.json
+
 Known issues
 ------------
 
