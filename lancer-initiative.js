@@ -60,8 +60,8 @@ class LancerInitiative {
 
     static sortCombatants(a, b) {
         //DUMMYs first ;)
-        if ( a.token === null ) return -1;
-        if ( b.token === null ) return 1;
+        if ( a.flags?.dummy === true ) return -1;
+        if ( b.flags?.dummy === true ) return 1;
 
         // Move inactive to the bottom
         if ( game.settings.get("lancer-initiative", "act-sort-last") ) {
@@ -112,21 +112,25 @@ class LancerInitiative {
         ];
     }
 
+    static handleCreateCombat(combat, options, userId) {
+    if (game.user.isGM) combat.createCombatant({
+        name: "DUMMY",
+        flags: { dummy: true }
+    });
+    }
     static handleUpdateCombat(combat, changed, options, userId) {
         if (! game.user.isGM ) return;
         if ("round" in changed) {
             combat.combatants.map(c =>
                 combat.setFlag("lancer-initiative", c._id, { acted: c?.defeated ? true : false })
             );
-            if (combat.combatants?.filter(c => c.token === null).length === 0) {
-                combat.createCombatant({ name: "DUMMY" });
-            }
         }
     }
 }
 
 Hooks.on("init", LancerInitiative.setup);
 
+Hooks.on("createCombat", LancerInitiative.handleCreateCombat);
 Hooks.on("updateCombat", LancerInitiative.handleUpdateCombat);
 
 Hooks.on("renderCombatTracker", async (app, html, data) => {
@@ -134,18 +138,18 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         const c_id = element.dataset.combatantId;
         const combatant = data.combat.data.combatants.find(c => c._id === c_id);
 
-        if ( combatant.token === null) {
+        if ( combatant.flags?.dummy === true) {
             element.style.display = "none";
             return;
         }
 
         const init_div = element.getElementsByClassName("token-initiative")[0];
 
-        let color = "#ffffff";
+        let color = "#00000000"
         if (data.combat.getFlag("lancer-initiative", c_id)?.acted) {
             color = game.settings.get("lancer-initiative", "xx-col");
         } else {
-            switch (combatant.token.disposition) {
+            switch (combatant.token?.disposition) {
                 case 1: // Player
                     color = game.settings.get("lancer-initiative", "pc-col");
                     break;
@@ -156,8 +160,6 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
                     color = game.settings.get("lancer-initiative", "en-col");
                     break;
                 default:
-                    console.log("Bad disposition");
-                    // error or something
             }
         }
         // TODO: Configurable icon
