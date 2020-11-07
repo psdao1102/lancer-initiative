@@ -113,6 +113,7 @@ class LancerInitiative {
     }
 
     static handleUpdateCombat(combat, changed, options, userId) {
+        if (! game.user.isGM ) return;
         if ("round" in changed) {
             combat.combatants.map(c =>
                 combat.setFlag("lancer-initiative", c._id, { acted: c?.defeated ? true : false })
