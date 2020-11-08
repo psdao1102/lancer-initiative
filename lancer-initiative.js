@@ -10,9 +10,7 @@ class LancerInitiative {
         CombatTracker.prototype._getEntryContextOptions =
             LancerInitiative.getEntryContextOptions;
 
-        CONFIG.Combat.initiative = {
-            formula: null
-        };
+        CONFIG.Combat.initiative = { formula: null };
     }
 
     static registerSettings() {
@@ -65,8 +63,8 @@ class LancerInitiative {
 
         // Move inactive to the bottom
         if ( game.settings.get("lancer-initiative", "act-sort-last") ) {
-            const act_a = game.combat.getFlag("lancer-initiative", a._id)?.acted;
-            const act_b = game.combat.getFlag("lancer-initiative", b._id)?.acted;
+            const act_a = a.flags.activations?.value === 0;
+            const act_b = b.flags.activations?.value === 0;
             const act_c = act_a - act_b;
             if ( act_c !==0 ) return act_c;
         }
@@ -85,8 +83,8 @@ class LancerInitiative {
     }
 
     static getEntryContextOptions() {
-        return [
-            { // TODO: Read from actor data and set the flag accordingly
+        return [ // TODO: Fix these to work for the new data setting
+            {
                 name: "Add Activation",
                 icon: '<i class="cci cci-activate"></i>',
                 callback:  async (li) => {
@@ -113,18 +111,37 @@ class LancerInitiative {
     }
 
     static handleCreateCombat(combat, options, userId) {
-    if (game.user.isGM) combat.createCombatant({
-        name: "DUMMY",
-        flags: { dummy: true }
-    });
+        if (game.user.isGM) combat.createCombatant({
+            name: "DUMMY",
+            flags: { dummy: true }
+        });
     }
+
     static handleUpdateCombat(combat, changed, options, userId) {
         if (! game.user.isGM ) return;
         if ("round" in changed) {
             combat.combatants.map(c =>
-                combat.setFlag("lancer-initiative", c._id, { acted: c?.defeated ? true : false })
+                combat.updateCombatant({
+                    _id: c._id,
+                    "flags.activations.value": c.flags.activations?.max
+                })
             );
         }
+    }
+
+    static handleCreateCombatant(combat, combatant, options, userId) {
+        if (combatant.tokenId === undefined) return;
+        // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        let a = canvas.tokens.get(combatant.tokenId).actor.data.data?.activations;
+        combat.updateCombatant({
+            _id: combatant._id,
+            flags: {
+                activations: {
+                    value: 0,
+                    max: a === undefined ? 1 : a
+                }
+            }
+        });
     }
 }
 
@@ -132,11 +149,12 @@ Hooks.on("init", LancerInitiative.setup);
 
 Hooks.on("createCombat", LancerInitiative.handleCreateCombat);
 Hooks.on("updateCombat", LancerInitiative.handleUpdateCombat);
+Hooks.on("createCombatant", LancerInitiative.handleCreateCombatant);
 
 Hooks.on("renderCombatTracker", async (app, html, data) => {
     html.find(".combatant").each((i, element) => {
         const c_id = element.dataset.combatantId;
-        const combatant = data.combat.data.combatants.find(c => c._id === c_id);
+        const combatant = data.combat.combatants.find(c => c._id === c_id);
 
         if ( combatant.flags?.dummy === true) {
             element.style.display = "none";
@@ -146,28 +164,33 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         const init_div = element.getElementsByClassName("token-initiative")[0];
 
         let color = "#00000000"
-        if (data.combat.getFlag("lancer-initiative", c_id)?.acted) {
-            color = game.settings.get("lancer-initiative", "xx-col");
-        } else {
-            switch (combatant.token?.disposition) {
-                case 1: // Player
-                    color = game.settings.get("lancer-initiative", "pc-col");
-                    break;
-                case 0: // Neutral
-                    color = game.settings.get("lancer-initiative", "nu-col");
-                    break;
-                case -1: // Hostile
-                    color = game.settings.get("lancer-initiative", "en-col");
-                    break;
-                default:
-            }
+        let done_color = game.settings.get("lancer-initiative", "xx-col");
+        switch (combatant.token?.disposition) {
+            case 1: // Player
+                color = game.settings.get("lancer-initiative", "pc-col");
+                break;
+            case 0: // Neutral
+                color = game.settings.get("lancer-initiative", "nu-col");
+                break;
+            case -1: // Hostile
+                color = game.settings.get("lancer-initiative", "en-col");
+                break;
+            default:
         }
+        let pending = combatant.flags.activations?.value;
+        if ( pending === undefined ) return;
+        let finished = combatant.flags.activations.max - pending;
         // TODO: Configurable icon
-        init_div.innerHTML = `<a class='cci cci-activate' title='Activate' style='color: ${color}; font-size: x-large;'></a>`;
+        init_div.innerHTML = `<a class='cci cci-activate' title='Activate' style='color: ${color}; font-size: x-large;'></a>`.repeat(pending);
+        init_div.innerHTML += `<a class='cci cci-activate' title='Activate' style='color: ${done_color}; font-size: x-large;'></a>`.repeat(finished);
 
         init_div.addEventListener("click", async e => {
-            if (data.combat.getFlag("lancer-initiative", c_id)?.acted) { return; }
-            await data.combat.setFlag("lancer-initiative", c_id, { acted: true });
+            let val = combatant.flags.activations.value
+            if (val === 0) return;
+            await data.combat.updateCombatant({
+                _id: combatant._id,
+                "flags.activations.value": val-1
+            });
             const turn = data.combat.turns.findIndex(t => t._id === c_id);
             await data.combat.update({ turn: turn });
         });
