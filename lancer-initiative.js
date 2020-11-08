@@ -89,13 +89,41 @@ class LancerInitiative {
                 icon: '<i class="cci cci-activate"></i>',
                 callback:  async (li) => {
                     const combatant = this.combat.getCombatant(li.data('combatant-id'));
-                    await this.combat.createCombatant(combatant);
+                    let max = combatant.flags.activations.max + 1;
+                    await this.combat.updateCombatant({
+                        _id: combatant._id,
+                        "flags.activations.max": max
+                    });
+                }
+            },
+            {
+                name: "Remove Activation",
+                icon: '<i class="cci cci-deactivate"></i>',
+                callback:  async (li) => {
+                    const combatant = this.combat.getCombatant(li.data('combatant-id'));
+                    let max = combatant.flags.activations.max - 1;
+                    let cur = clampNumber(combatant.flags.activations.value, 0, max > 0 ? max : 1);
+                    await this.combat.updateCombatant({
+                        _id: combatant._id,
+                        "flags.activations.max": max > 0 ? max : 1,
+                        "flags.activations.value": cur
+                    });
                 }
             },
             {
                 name: "Undo Activation",
                 icon: '<i class="fas fa-undo"></i>',
-                callback: li => this.combat.setFlag("lancer-initiative", li.data('combatant-id'), { acted: false })
+                callback: li => {
+                    const combatant = this.combat.getCombatant(li.data('combatant-id'));
+                    let max = combatant.flags.activations.max;
+                    let cur = clampNumber(combatant.flags.activations.value+1, 0, max > 0 ? max : 1);
+                    this.combat.updateCombatant({
+                        _id: combatant._id,
+                        "flags.activations.value": cur
+                    });
+                }
+
+                //setFlag("lancer-initiative", li.data('combatant-id'), { acted: false })
             },
             {
                 name: "COMBAT.CombatantUpdate",
@@ -130,6 +158,7 @@ class LancerInitiative {
     }
 
     static handleCreateCombatant(combat, combatant, options, userId) {
+        if (! game.user.isGM ) return;
         if (combatant.tokenId === undefined) return;
         // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         let a = canvas.tokens.get(combatant.tokenId).actor.data.data?.activations;
