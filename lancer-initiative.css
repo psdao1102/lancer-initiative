@@ -1,0 +1,30 @@
+li.combatant {
+  padding-right: .5em;
+  border: 3px;
+  border-radius: 5px;
+  border-color: #444444;
+  border-style: solid !important;
+  border-top: 0px !important;
+  border-bottom: 0px !important;
+  margin: 4px;
+}
+
+a.li-icon {
+  font-size: large;
+}
+
+a.li-icon-large {
+  font-size: x-large;
+}
+
+a.li-icon-xlarge {
+  font-size: xx-large;
+}
+
+#combat #combat-tracker .combatant .token-initiative {
+  padding-left: .5em;
+  align-items: center;
+  display: flex;
+  position: relative;
+  flex: 0 0 auto;
+}

@@ -9,8 +9,6 @@ class LancerInitiative {
         Combat.prototype._sortCombatants = LancerInitiative.sortCombatants;
         CombatTracker.prototype._getEntryContextOptions =
             LancerInitiative.getEntryContextOptions;
-
-        CONFIG.Combat.initiative = { formula: null };
     }
 
     static registerSettings() {
@@ -45,6 +43,14 @@ class LancerInitiative {
             config: true,
             type: String,
             default: "#444444"
+        });
+        game.settings.register("lancer-initiative", "icon", {
+            name: "Action Icon",
+            hint: "CSS classes to define the activation icon; li-icon, li-icon-large, and li-icon-xlarge are defined to increase the size if needed",
+            scope: "world",
+            config: true,
+            type: String,
+            default: "cci cci-activate li-icon-large"
         });
         game.settings.register("lancer-initiative", "act-sort-last", {
             name: "Activated units last",
@@ -86,7 +92,7 @@ class LancerInitiative {
         return [ // TODO: Fix these to work for the new data setting
             {
                 name: "Add Activation",
-                icon: '<i class="cci cci-activate"></i>',
+                icon: '<i class="fas fa-plus"></i>',
                 callback:  async (li) => {
                     const combatant = this.combat.getCombatant(li.data('combatant-id'));
                     let max = combatant.flags.activations.max + 1;
@@ -98,7 +104,7 @@ class LancerInitiative {
             },
             {
                 name: "Remove Activation",
-                icon: '<i class="cci cci-deactivate"></i>',
+                icon: '<i class="fas fa-minus"></i>',
                 callback:  async (li) => {
                     const combatant = this.combat.getCombatant(li.data('combatant-id'));
                     let max = combatant.flags.activations.max - 1;
@@ -192,6 +198,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 
         const init_div = element.getElementsByClassName("token-initiative")[0];
 
+        // Retrieve settings
         let color = "#00000000"
         let done_color = game.settings.get("lancer-initiative", "xx-col");
         switch (combatant.token?.disposition) {
@@ -206,12 +213,17 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
                 break;
             default:
         }
+        let icon = game.settings.get("lancer-initiative", "icon");
+
+        //get activations
         let pending = combatant.flags.activations?.value;
         if ( pending === undefined ) return;
         let finished = combatant.flags.activations.max - pending;
-        // TODO: Configurable icon
-        init_div.innerHTML = `<a class='cci cci-activate' title='Activate' style='color: ${color}; font-size: x-large;'></a>`.repeat(pending);
-        init_div.innerHTML += `<a class='cci cci-activate' title='Activate' style='color: ${done_color}; font-size: x-large;'></a>`.repeat(finished);
+
+        init_div.innerHTML = `<a class='${icon}' title='Activate' style='color: ${color};'></a>`.repeat(pending);
+        init_div.innerHTML += `<a class='${icon}' title='Activate' style='color: ${done_color};'></a>`.repeat(finished);
+
+        element.style.borderColor = color;
 
         init_div.addEventListener("click", async e => {
             let val = combatant.flags.activations.value
