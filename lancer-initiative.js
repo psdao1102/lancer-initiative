@@ -155,7 +155,7 @@ class LancerInitiative {
             combat.combatants.map(c =>
                 combat.updateCombatant({
                     _id: c._id,
-                    "flags.activations.value": c.flags.activations?.max
+                    "flags.activations.value": c.defeated ? 0 : c.flags.activations?.max
                 })
             );
         }
