@@ -28,3 +28,7 @@ a.li-icon-xlarge {
   position: relative;
   flex: 0 0 auto;
 }
+
+ol#combat-tracker li.combatant:first-child {
+  display: none;
+}

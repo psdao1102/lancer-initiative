@@ -189,10 +189,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         const c_id = element.dataset.combatantId;
         const combatant = data.combat.combatants.find(c => c._id === c_id);
 
-        if ( combatant.flags?.dummy === true) {
-            element.style.display = "none";
-            return;
-        }
+        if ( combatant.flags?.dummy === true) return;
 
         const init_div = element.getElementsByClassName("token-initiative")[0];
 
