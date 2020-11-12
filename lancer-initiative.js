@@ -128,8 +128,6 @@ class LancerInitiative {
                         "flags.activations.value": cur
                     });
                 }
-
-                //setFlag("lancer-initiative", li.data('combatant-id'), { acted: false })
             },
             {
                 name: "COMBAT.CombatantUpdate",
@@ -217,18 +215,19 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 
         //get activations
         let pending = combatant.flags.activations?.value;
-        if ( pending === undefined ) return;
-        let finished = combatant.flags.activations.max - pending;
+        if ( pending === undefined ) pending = 0;
+        let finished = combatant.flags.activations?.max - pending;
 
         init_div.innerHTML = `<a class='${icon}' title='Activate' style='color: ${color};'></a>`.repeat(pending);
         init_div.innerHTML += `<a class='${icon}' title='Activate' style='color: ${done_color};'></a>`.repeat(finished);
 
         element.style.borderColor = color;
 
+        // Create click action
         init_div.addEventListener("click", async e => {
             let val = combatant.flags.activations.value
             if (val === 0) return;
-            await data.combat.updateCombatant({
+            await data.combat.updateCombatant({ // Sync here in case tracker order changes
                 _id: combatant._id,
                 "flags.activations.value": val-1
             });
@@ -237,6 +236,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         });
     });
 
+    // Hide the turn buttons
     html.find(".combat-control").each((i, e) => {
         if (e.dataset.control === "previousTurn" || e.dataset.control === "nextTurn") {
             e.style.display = "none";
