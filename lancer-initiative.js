@@ -179,6 +179,25 @@ class LancerInitiative {
 }
 
 Hooks.on("init", LancerInitiative.setup);
+Hooks.once("ready", () => { // Detect and recover from Foundry deciding that it doesn't want to save data.
+  if (! game.user.isGM ) return;
+  game.combats.map(c => {
+    c.combatants.map(t => {
+      if (t.flags.activations?.value === undefined && t.flags?.dummy !== true) {
+        let a = t.actor.data.data?.activations;
+        c.updateCombatant({
+          _id: t._id,
+          flags: {
+            activations: {
+              value: 0,
+              max: a === undefined ? 1 : a
+            }
+          }
+        });
+      }
+    });
+  });
+});
 
 Hooks.on("createCombat", LancerInitiative.handleCreateCombat);
 Hooks.on("updateCombat", LancerInitiative.handleUpdateCombat);
@@ -240,4 +259,3 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         }
     });
 });
-
