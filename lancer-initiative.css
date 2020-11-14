@@ -29,6 +29,11 @@ a.li-icon-xlarge {
   flex: 0 0 auto;
 }
 
-ol#combat-tracker li.combatant:first-child {
-  display: none;
+#combat #combat-tracker li.combatant:first-child {
+  display: none !important;
+}
+
+#combat #combat-tracker li.combatant.turn-done {
+  color: inherit;
+  text-decoration: inherit;
 }
