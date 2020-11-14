@@ -19,6 +19,8 @@ Known issues
 ------------
 
  * Not all initiative modules handle the empty combatant this module adds correctly.
+ * **Combat Enhancements** is incompatible pending [this issue](https://gitlab.com/asacolips-projects/foundry-mods/combat-enhancements/-/issues/10). Drag and drop from combat enhancements does not work as this does't use initiative values.
  * **Turn Marker** can fail to update properly when moving inactive units to the bottom is enabled. Turning off that resolves the incompatibility.
  * **Status Icon Counters** does not track turns properly when used with this module.
  * Defeated units aren't skipped.
+ 
