@@ -183,7 +183,7 @@ Hooks.once("ready", () => { // Detect and recover from Foundry deciding that it 
   if (! game.user.isGM ) return;
   game.combats.map(c => {
     c.combatants.map(t => {
-      if (t.flags.activations?.value === undefined && t.flags?.dummy !== true) {
+      if ((t.flags.activations?.value === undefined || t.flags.activations?.max === undefined) && t.flags?.dummy !== true) {
         let a = t.actor.data.data?.activations;
         c.updateCombatant({
           _id: t._id,
