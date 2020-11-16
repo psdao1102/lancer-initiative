@@ -4,8 +4,8 @@
     "description": "Implements LANCER's popcorn style initiative in Foundry VTT",
     "author": "Bolts",
     "type": "module",
-    "version": "0.1.4a",
-    "minimumCoreVersion": "0.6.6",
+    "version": "0.1.5a",
+    "minimumCoreVersion": "0.7.0",
     "compatibleCoreVersion": "0.7.7",
     "esmodules": [
         "./lancer-initiative.js"
