@@ -29,7 +29,7 @@ a.li-icon-xlarge {
   flex: 0 0 auto;
 }
 
-#combat #combat-tracker li.combatant.hidden:first-child {
+#combat #combat-tracker li.combatant.hidden[data-token-id=""]:first-child {
   display: none !important;
 }
 
