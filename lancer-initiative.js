@@ -145,7 +145,8 @@ class LancerInitiative {
     static handleCreateCombat(combat, options, userId) {
         if (game.user.isGM) combat.createCombatant({
             name: "DUMMY",
-            flags: { dummy: true }
+            flags: { dummy: true },
+            hidden: true
         });
     }
 
