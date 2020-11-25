@@ -1,7 +1,7 @@
-LANCER Initiative
+Lancer Initiative
 =================
 
-A very hacky implementation of LANCER's initiative system for Foundry VTT. LANCER Initiative makes the following changes to the Foundry VTT turn tracker:
+A very hacky implementation of Lancer's initiative system for Foundry VTT. Lancer Initiative makes the following changes to the Foundry VTT turn tracker:
 
  * Sorts the initiative tracker by token disposition and then token name. The order is players, then neutrals, then hostiles. Setting the initiative for an entry can change the sort order from within the category. Sorting is from low to high.
  * Replaces the Roll Initiative button and initiative display with an activation button. Clicking the button will set the current initiative to that token. Buttons are color coded by faction and greyed out for tokens that have already acted.
