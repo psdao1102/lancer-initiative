@@ -160,13 +160,12 @@ function handleCreateCombatant(combat, combatant, options, userId) {
   });
 }
 
-//Hooks.once("init", registerSettings);
-Hooks.once("init", () => { // Detect and recover from Foundry deciding that it doesn't want to save data.
+Hooks.once("init", () => {
   setup();
   registerSettings();
 });
 
-Hooks.once("ready", () => {
+Hooks.once("ready", () => { // Detect and recover from Foundry deciding that it doesn't want to save data.
   if (! game.user.isGM ) return;
   game.combats.map(c => {
     c.combatants.map(t => {
