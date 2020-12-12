@@ -36,6 +36,16 @@ function registerSettings() {
     type: String,
     default: "#444444",
   });
+
+  let def_icon = "";
+  switch (game.system.id) {
+    case "lancer":
+      def_icon = "cci cci-activate li-icon-large";
+      break;
+    default:
+      def_icon = "fas fa-chevron-circle-right li-icon";
+  }
+
   game.settings.register("lancer-initiative", "icon", {
     name: "Action Icon",
     hint:
@@ -43,7 +53,7 @@ function registerSettings() {
     scope: "world",
     config: true,
     type: String,
-    default: "cci cci-activate li-icon-large",
+    default: def_icon,
   });
   game.settings.register("lancer-initiative", "act-sort-last", {
     name: "Activated units last",
