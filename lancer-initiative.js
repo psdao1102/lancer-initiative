@@ -6,7 +6,7 @@ function registerSettings() {
 
   game.settings.register("lancer-initiative", "pc-col", {
     name: game.i18n.localize("LANCERINITIATIVE.PCColor"),
-    hint: "Default: $44abe0",
+    hint: game.i18n.localize("LANCERINITIATIVE.PCColorDesc"),
     scope: "world",
     config: true,
     type: String,
@@ -14,7 +14,7 @@ function registerSettings() {
   });
   game.settings.register("lancer-initiative", "nu-col", {
     name: game.i18n.localize("LANCERINITIATIVE.NeutralColor"),
-    hint: "Default: #146464",
+    hint: game.i18n.localize("LANCERINITIATIVE.NeutralColorDesc"),
     scope: "world",
     config: true,
     type: String,
@@ -22,7 +22,7 @@ function registerSettings() {
   });
   game.settings.register("lancer-initiative", "en-col", {
     name: game.i18n.localize("LANCERINITIATIVE.EnemyColor"),
-    hint: "Default: #d98f30",
+    hint: game.i18n.localize("LANCERINITIATIVE.EnemyColorDesc"),
     scope: "world",
     config: true,
     type: String,
@@ -30,7 +30,7 @@ function registerSettings() {
   });
   game.settings.register("lancer-initiative", "xx-col", {
     name: game.i18n.localize("LANCERINITIATIVE.DoneColor"),
-    hint: "Default: #444444",
+    hint: game.i18n.localize("LANCERINITIATIVE.DoneColorDesc"),
     scope: "world",
     config: true,
     type: String,

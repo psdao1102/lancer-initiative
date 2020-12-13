@@ -1,8 +1,12 @@
 {
   "LANCERINITIATIVE.PCColor": "Player Color",
+  "LANCERINITIATIVE.PCColorDesc": "Default: $44abe0",
   "LANCERINITIATIVE.NeutralColor": "Neutral Color",
+  "LANCERINITIATIVE.NeutralColorDesc": "Default: #146464",
   "LANCERINITIATIVE.EnemyColor": "Enemy Color",
+  "LANCERINITIATIVE.EnemyColorDesc": "Default: #d98f30",
   "LANCERINITIATIVE.DoneColor": "Inactive Color",
+  "LANCERINITIATIVE.DoneColorDesc": "Default: #444444",
   "LANCERINITIATIVE.Icon": "Action Icon",
   "LANCERINITIATIVE.IconDesc": "CSS classes to define the activation icon; li-icon, li-icon-large, and li-icon-xlarge are defined to increase the size if needed",
   "LANCERINITIATIVE.ActivatedLast": "Activated Units Last",
