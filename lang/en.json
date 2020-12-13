@@ -1,0 +1,13 @@
+{
+  "LANCERINITIATIVE.PCColor": "Player Color",
+  "LANCERINITIATIVE.NeutralColor": "Neutral Color",
+  "LANCERINITIATIVE.EnemyColor": "Enemy Color",
+  "LANCERINITIATIVE.DoneColor": "Inactive Color",
+  "LANCERINITIATIVE.Icon": "Action Icon",
+  "LANCERINITIATIVE.IconDesc": "CSS classes to define the activation icon; li-icon, li-icon-large, and li-icon-xlarge are defined to increase the size if needed",
+  "LANCERINITIATIVE.ActivatedLast": "Activated Units Last",
+  "LANCERINITIATIVE.ActivatedLastDesc": "Moves units that have taken their turn to the end of the tracker.",
+  "LANCERINITIATIVE.AddActivation": "Add Activation",
+  "LANCERINITIATIVE.RemoveActivation": "Remove Activation",
+  "LANCERINITIATIVE.UndoActivation": "Undo Activation"
+}

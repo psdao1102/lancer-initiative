@@ -5,7 +5,7 @@ function registerSettings() {
   console.log("lancer-initiative | Initializing Lancer Initiative Module");
 
   game.settings.register("lancer-initiative", "pc-col", {
-    name: "Player button color",
+    name: game.i18n.localize("LANCERINITIATIVE.PCColor"),
     hint: "Default: $44abe0",
     scope: "world",
     config: true,
@@ -13,7 +13,7 @@ function registerSettings() {
     default: "#44abe0",
   });
   game.settings.register("lancer-initiative", "nu-col", {
-    name: "Neutral button color",
+    name: game.i18n.localize("LANCERINITIATIVE.NeutralColor"),
     hint: "Default: #146464",
     scope: "world",
     config: true,
@@ -21,7 +21,7 @@ function registerSettings() {
     default: "#146464",
   });
   game.settings.register("lancer-initiative", "en-col", {
-    name: "Enemy button color",
+    name: game.i18n.localize("LANCERINITIATIVE.EnemyColor"),
     hint: "Default: #d98f30",
     scope: "world",
     config: true,
@@ -29,7 +29,7 @@ function registerSettings() {
     default: "#d98f30",
   });
   game.settings.register("lancer-initiative", "xx-col", {
-    name: "Inactive button color",
+    name: game.i18n.localize("LANCERINITIATIVE.DoneColor"),
     hint: "Default: #444444",
     scope: "world",
     config: true,
@@ -47,17 +47,16 @@ function registerSettings() {
   }
 
   game.settings.register("lancer-initiative", "icon", {
-    name: "Action Icon",
-    hint:
-      "CSS classes to define the activation icon; li-icon, li-icon-large, and li-icon-xlarge are defined to increase the size if needed",
+    name: game.i18n.localize("LANCERINITIATIVE.Icon"),
+    hint: game.i18n.localize("LANCERINITIATIVE.IconDesc"),
     scope: "world",
     config: true,
     type: String,
     default: def_icon,
   });
   game.settings.register("lancer-initiative", "act-sort-last", {
-    name: "Activated units last",
-    hint: "Moves units that have taken their turn to the end of the tracker.",
+    name: game.i18n.localize("LANCERINITIATIVE.ActivatedLast"),
+    hint: game.i18n.localize("LANCERINITIATIVE.ActivatedLastDesc"),
     scope: "world",
     config: true,
     type: Boolean,
