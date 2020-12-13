@@ -5,32 +5,32 @@ function registerSettings() {
   console.log("lancer-initiative | Initializing Lancer Initiative Module");
 
   game.settings.register("lancer-initiative", "pc-col", {
-    name: "Player button color",
-    hint: "Default: $44abe0",
+    name: "LancerInitiative.Settings.PlayerButtonColor",
+    hint: "LancerInitiative.Settings.PlayerButtonColorHint",
     scope: "world",
     config: true,
     type: String,
     default: "#44abe0",
   });
   game.settings.register("lancer-initiative", "nu-col", {
-    name: "Neutral button color",
-    hint: "Default: #146464",
+    name: "LancerInitiative.Settings.NeutralButtonColor",
+    hint: "LancerInitiative.Settings.NeutralButtonColorHint",
     scope: "world",
     config: true,
     type: String,
     default: "#146464",
   });
   game.settings.register("lancer-initiative", "en-col", {
-    name: "Enemy button color",
-    hint: "Default: #d98f30",
+    name: "LancerInitiative.Settings.EnemyButtonColor",
+    hint: "LancerInitiative.Settings.EnemyButtonColorHint",
     scope: "world",
     config: true,
     type: String,
     default: "#d98f30",
   });
   game.settings.register("lancer-initiative", "xx-col", {
-    name: "Inactive button color",
-    hint: "Default: #444444",
+    name: "LancerInitiative.Settings.InactiveButtonColor",
+    hint: "LancerInitiative.Settings.InactiveButtonColorHint",
     scope: "world",
     config: true,
     type: String,
@@ -47,17 +47,16 @@ function registerSettings() {
   }
 
   game.settings.register("lancer-initiative", "icon", {
-    name: "Action Icon",
-    hint:
-      "CSS classes to define the activation icon; li-icon, li-icon-large, and li-icon-xlarge are defined to increase the size if needed",
+    name: "LancerInitiative.Settings.ActionIcon",
+    hint: "LancerInitiative.Settings.ActionIconHint",
     scope: "world",
     config: true,
     type: String,
     default: def_icon,
   });
   game.settings.register("lancer-initiative", "act-sort-last", {
-    name: "Activated units last",
-    hint: "Moves units that have taken their turn to the end of the tracker.",
+    name: "LancerInitiative.Settings.ActivatedUnitsLast",
+    hint: "LancerInitiative.Settings.ActivatedUnitsLastHint",
     scope: "world",
     config: true,
     type: Boolean,
