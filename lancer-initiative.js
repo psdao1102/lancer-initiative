@@ -1,58 +1,63 @@
 import { LancerCombat } from "./module/lancer-combat.js";
 import { LancerCombatTracker } from "./module/lancer-combat-tracker.js";
+import { LIForm } from "./module/li-form.js";
 
 function registerSettings() {
   console.log("lancer-initiative | Initializing Lancer Initiative Module");
 
+  game.settings.registerMenu("lancer-initiative", "lancerInitiative", {
+    name: game.i18n.localize("LANCERINITIATIVE.IconSettingsMenu"),
+    label: game.i18n.localize("LANCERINITIATIVE.IconSettingsMenu"),
+    type: LIForm,
+    restricted: true,
+  });
   game.settings.register("lancer-initiative", "pc-col", {
-    name: game.i18n.localize("LANCERINITIATIVE.PCColor"),
-    hint: game.i18n.localize("LANCERINITIATIVE.PCColorDesc"),
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "#44abe0",
   });
   game.settings.register("lancer-initiative", "nu-col", {
-    name: game.i18n.localize("LANCERINITIATIVE.NeutralColor"),
-    hint: game.i18n.localize("LANCERINITIATIVE.NeutralColorDesc"),
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "#146464",
   });
   game.settings.register("lancer-initiative", "en-col", {
-    name: game.i18n.localize("LANCERINITIATIVE.EnemyColor"),
-    hint: game.i18n.localize("LANCERINITIATIVE.EnemyColorDesc"),
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "#d98f30",
   });
   game.settings.register("lancer-initiative", "xx-col", {
-    name: game.i18n.localize("LANCERINITIATIVE.DoneColor"),
-    hint: game.i18n.localize("LANCERINITIATIVE.DoneColorDesc"),
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: "#444444",
   });
 
   let def_icon = "";
+  let def_icon_size = 0;
   switch (game.system.id) {
     case "lancer":
-      def_icon = "cci cci-activate li-icon-large";
+      def_icon = "cci cci-activate";
+      def_icon_size = 2;
       break;
     default:
-      def_icon = "fas fa-chevron-circle-right li-icon";
+      def_icon = "fas fa-chevron-circle-right";
+      def_icon_size = 1.5;
   }
-
   game.settings.register("lancer-initiative", "icon", {
-    name: game.i18n.localize("LANCERINITIATIVE.Icon"),
-    hint: game.i18n.localize("LANCERINITIATIVE.IconDesc"),
     scope: "world",
-    config: true,
+    config: false,
     type: String,
     default: def_icon,
+  });
+  game.settings.register("lancer-initiative", "icon-size", {
+    scope: "world",
+    config: false,
+    type: Number,
+    default: def_icon_size,
   });
   game.settings.register("lancer-initiative", "act-sort-last", {
     name: game.i18n.localize("LANCERINITIATIVE.ActivatedLast"),

@@ -1,0 +1,63 @@
+<form autocomplete="off">
+    <h2>{{ localize "LANCERINITIATIVE.IconSettingsMenu" }}</h2>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.Icon" }}</label>
+    <input type="text" name="icon" value="{{ icon }}" data-dtype="String"/>
+    <p class="notes">{{ localize "LANCERINITIATIVE.IconDesc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.IconSize" }}</label>
+    <input type="range" name="icon-size" min="1" max="4" step="0.1" value="{{ icon-size }}" data-dtype="Number"/>
+    <span class="range-value">{{ icon-size }}</span>
+    <!--<p class="notes">{{ localize "LANCERINITIATIVE.IconSizeDesc" }}</p>-->
+  </div>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.IconPreview" }}</label>
+    <div class="icon-preview combatant flexrow">
+      <a class="preview {{ icon }}" style="color: {{ player }}; font-size: {{ icon-size }}rem" id="pc-icon-preview"></a>
+    <!--<p class="notes">{{ localize "LANCERINITIATIVE.IconPreviewDesc" }}</p>-->
+    </div>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.PCColor" }}</label>
+    <div class="form-fields">
+      <input type="text" name="player" value="{{ player }}" data-dtype="String"/>
+      <input type="color" name="player_selector" value="{{ player }}" data-edit="player"/>
+    </div>
+    <p class="notes">{{ localize "LANCERINITIATIVE.PCColorDesc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.NeutralColor" }}</label>
+    <div class="form-fields">
+      <input type="text" name="neutral" value="{{ neutral }}" data-dtype="String"/>
+      <input type="color" name="neutral_selector" value="{{ neutral }}" data-edit="neutral"/>
+    </div>
+    <p class="notes">{{ localize "LANCERINITIATIVE.NeutralColorDesc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.EnemyColor" }}</label>
+    <div class="form-fields">
+      <input type="text" name="enemy" value="{{ enemy }}" data-dtype="String"/>
+      <input type="color" name="enemy_selector" value="{{ enemy }}" data-edit="enemy"/>
+    </div>
+    <p class="notes">{{ localize "LANCERINITIATIVE.EnemyColorDesc" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.DoneColor" }}</label>
+    <div class="form-fields">
+      <input type="text" name="done" value="{{ done }}" data-dtype="String"/>
+      <input type="color" name="done_selector" value="{{ done }}" data-edit="done"/>
+    </div>
+    <p class="notes">{{ localize "LANCERINITIATIVE.DoneColorDesc" }}</p>
+  </div>
+  <div class="form-group">
+    <button type="submit" name="submit">
+      <i class="fas fa-save"></i>
+      <span>Save</span>
+    </button>
+    <button type="button" name="reset">
+      <i class="fas fa-undo"></i>
+      <span>Reset</span>
+    </button>
+  </div>
+</form>

@@ -9,18 +9,6 @@ li.combatant {
   margin: 4px;
 }
 
-a.li-icon {
-  font-size: large;
-}
-
-a.li-icon-large {
-  font-size: x-large;
-}
-
-a.li-icon-xlarge {
-  font-size: xx-large;
-}
-
 #combat #combat-tracker .combatant .token-initiative {
   padding-left: 0.5em;
   align-items: center;
@@ -41,4 +29,22 @@ a.li-icon-xlarge {
 #combat #combat-controls .combat-control[data-control="previousTurn"],
 #combat #combat-controls .combat-control[data-control="nextTurn"] {
   display: none !important;
+}
+
+#lancer-initiative-settings .icon-preview {
+  text-align: right;
+  background-color: #3a3a3a;
+  flex: 0 0 auto;
+  border-radius: 0.5rem;
+  padding: 0.25em;
+}
+
+#lancer-initiative-settings .icon-preview .preview {
+  flex: 0 0 auto;
+  color: white;
+}
+
+#lancer-initiative-settings input[type="color"] {
+    flex: 0 0 3rem;
+    cursor: pointer;
 }

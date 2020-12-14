@@ -1,6 +1,6 @@
 {
   "LANCERINITIATIVE.PCColor": "Color del botón para jugadores",
-  "LANCERINITIATIVE.PCColorDesc": "Predeterminado: $44abe0",
+  "LANCERINITIATIVE.PCColorDesc": "Predeterminado: #44abe0",
   "LANCERINITIATIVE.NeutralColor": "Color del botón para neutrales",
   "LANCERINITIATIVE.NeutralColorDesc": "Predeterminado: #146464",
   "LANCERINITIATIVE.EnemyColor": "Color del botón para enemigos",

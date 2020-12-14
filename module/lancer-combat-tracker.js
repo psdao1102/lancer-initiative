@@ -83,6 +83,7 @@ export class LancerCombatTracker extends CombatTracker {
       hostile: game.settings.get("lancer-initiative", "en-col"),
       inactive: game.settings.get("lancer-initiative", "xx-col"),
       icon: game.settings.get("lancer-initiative", "icon"),
+      icon_size: game.settings.get("lancer-initiative", "icon-size").toString() + "rem",
     };
     html.find(".combatant").each((_, element) => {
       const c_id = element.dataset.combatantId;
@@ -108,16 +109,17 @@ export class LancerCombatTracker extends CombatTracker {
         default:
       }
       let icon = options.icon;
+      let icon_size = options.icon_size;
 
       //get activations
       let pending = combatant.flags.activations?.value;
       if (pending === undefined) pending = 0;
       let finished = combatant.flags.activations?.max - pending;
 
-      init_div.innerHTML = `<a class='${icon}' title='Activate' style='color: ${color};'></a>`.repeat(
+      init_div.innerHTML = `<a class='${icon}' title='Activate' style='color: ${color}; font-size: ${icon_size}'></a>`.repeat(
         pending
       );
-      init_div.innerHTML += `<a class='${icon}' title='Activate' style='color: ${done_color};'></a>`.repeat(
+      init_div.innerHTML += `<a class='${icon}' title='Activate' style='color: ${done_color}; font-size: ${icon_size}'></a>`.repeat(
         finished
       );
 
