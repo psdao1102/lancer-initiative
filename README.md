@@ -2,8 +2,7 @@ Lancer Initiative
 =================
 ![Forge installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Flancer-initiative)
 
-Lancer's initiative system for Foundry VTT. While intended for Lancer, this can be used to get popcorn style initiative on any system by changing the icon the module uses in the settings (`fas fa-chevron-circle-right li-icon` is a nice generic choice.) 
-
+Lancer's initiative system for Foundry VTT. While intended for Lancer, this can be used to get popcorn style initiative on any system.
 Lancer Initiative makes the following changes to the Foundry VTT turn tracker:
 
  * Sorts the initiative tracker by token disposition and then token name. The order is players, then neutrals, then hostiles. Setting the initiative for an entry can change the sort order from within the category.
