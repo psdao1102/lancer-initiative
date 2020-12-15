@@ -8,7 +8,7 @@
   "LANCERINITIATIVE.DoneColor": "Color del botón para inactivos",
   "LANCERINITIATIVE.DoneColorDesc": "Predeterminado: #444444",
   "LANCERINITIATIVE.Icon": "Icono de acción",
-  "LANCERINITIATIVE.IconDesc": "Clases de CSS que definen el icono de activación; si necesitas incrementar el tamaño tienes disponibles li-icon, li-icon-large y li-icon-xlarge",
+  "LANCERINITIATIVE.IconDesc": "Clases de CSS que definen el icono de activación",
   "LANCERINITIATIVE.ActivatedLast": "Unidades ya activadas al final",
   "LANCERINITIATIVE.ActivatedLastDesc": "Mueve las unidades que ya pasaron su turno al final del asistente.",
   "LANCERINITIATIVE.AddActivation": "Añadir activación",

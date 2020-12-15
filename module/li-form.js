@@ -5,7 +5,7 @@ export class LIForm extends FormApplication {
       title: "Lancer Intiative",
       id: "lancer-initiative-settings",
       template: "modules/lancer-initiative/templates/lancer-initiative-settings.html",
-      width: 420,
+      width: 350,
     });
   }
 
@@ -41,6 +41,10 @@ export class LIForm extends FormApplication {
     html.find('input[type="color"]').hover(e => {
       html.find("a.preview").each((_, i) => {
         i.style.color = e.target.value;
+      });
+      if ( e.target.name === "done_selector") return;
+      html.find("li.combatant").each((_, i) => {
+        i.style.borderColor = e.target.value;
       });
     });
 

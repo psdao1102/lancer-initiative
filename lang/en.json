@@ -1,7 +1,7 @@
 {
   "LANCERINITIATIVE.IconSettingsMenu": "Icon Settings",
   "LANCERINITIATIVE.Icon": "Action Icon",
-  "LANCERINITIATIVE.IconDesc": "CSS classes to define the activation icon; li-icon, li-icon-large, and li-icon-xlarge are defined to increase the size if needed",
+  "LANCERINITIATIVE.IconDesc": "CSS classes to define the activation icon.",
   "LANCERINITIATIVE.IconSize": "Icon Size",
   "LANCERINITIATIVE.IconPreview": "Icon Preview",
   "LANCERINITIATIVE.PCColor": "Player Color",

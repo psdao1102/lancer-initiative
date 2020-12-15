@@ -11,13 +11,34 @@
     <span class="range-value">{{ icon-size }}</span>
     <!--<p class="notes">{{ localize "LANCERINITIATIVE.IconSizeDesc" }}</p>-->
   </div>
-  <div class="form-group">
-    <label>{{ localize "LANCERINITIATIVE.IconPreview" }}</label>
-    <div class="icon-preview combatant flexrow">
-      <a class="preview {{ icon }}" style="color: {{ player }}; font-size: {{ icon-size }}rem" id="pc-icon-preview"></a>
-    <!--<p class="notes">{{ localize "LANCERINITIATIVE.IconPreviewDesc" }}</p>-->
-    </div>
+
+  <div class="app" id="preview-combat">
+    <section class="sidebar-tab tab" id="combat">
+      <ol id="combat-tracker" class="directory-list">
+        <li class="combatant actor directory-item flexrow" style="border-color: {{ player }}">
+          <img src="icons/svg/mystery-man.svg">
+          <div class="token-name flexcol">
+            <h4>{{ localize "LANCERINITIATIVE.IconPreview" }}</h4>
+            <div class="combatant-controls flexrow">
+              <a class="combatant-control " title="Toggle Visibility" data-control="toggleHidden">
+                <i class="fas fa-eye-slash"></i></a>
+              <a class="combatant-control " title="Mark Defeated" data-control="toggleDefeated">
+                <i class="fas fa-skull"></i></a>
+              <div class="token-effects">
+              </div>
+            </div>
+          </div>
+          <div class="token-resource">
+            <span class="resource"></span>
+          </div>
+          <div class="token-initiative">
+            <a class="preview {{ icon }}" style="color: {{ player }}; font-size: {{ icon-size }}rem"></a>
+          </div>
+        </li>
+      </ol>
+    </section>
   </div>
+
   <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.PCColor" }}</label>
     <div class="form-fields">

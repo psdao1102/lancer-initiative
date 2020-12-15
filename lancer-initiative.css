@@ -31,20 +31,12 @@ li.combatant {
   display: none !important;
 }
 
-#lancer-initiative-settings .icon-preview {
-  text-align: right;
-  background-color: #3a3a3a;
-  flex: 0 0 auto;
-  border-radius: 0.5rem;
-  padding: 0.25em;
-}
-
-#lancer-initiative-settings .icon-preview .preview {
-  flex: 0 0 auto;
-  color: white;
-}
-
 #lancer-initiative-settings input[type="color"] {
     flex: 0 0 3rem;
     cursor: pointer;
+}
+
+#lancer-initiative-settings #preview-combat {
+  padding: 0px;
+  margin: 1rem;
 }
