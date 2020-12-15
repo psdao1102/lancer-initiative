@@ -8,14 +8,19 @@ export class LancerCombatTracker extends CombatTracker {
    */
   async getData(options) {
     let data = await super.getData(options);
-    const sort = game.settings.get("lancer-initiative", "act-sort-last");
-    if (!data.hasCombat || !sort) return data;
-    let turns = Array.from(data.turns);
-    turns = turns.sort(function (a, b) {
-      const ad = a.flags.activations.value === 0 && a.css.indexOf("active") === -1;
-      const bd = b.flags.activations.value === 0 && b.css.indexOf("active") === -1;
-      return ad - bd;
-    });
+    const sort = game.settings.get("lancer-initiative", "sort");
+    if (!data.hasCombat) return data;
+    let turns = Array.from(data.turns).filter(t => !t.flags.dummy);
+    if (sort) {
+      turns = turns.sort(function (a, b) {
+        const aa = a.css.indexOf("active") !== -1;
+        const ba = b.css.indexOf("active") !== -1;
+        if (ba - aa !== 0) return ba - aa;
+        const ad = a.flags.activations.value === 0;
+        const bd = b.flags.activations.value === 0;
+        return ad - bd;
+      });
+    }
     return mergeObject(data, {
       turns: turns,
     });

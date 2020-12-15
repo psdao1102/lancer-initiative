@@ -59,9 +59,9 @@ function registerSettings() {
     type: Number,
     default: def_icon_size,
   });
-  game.settings.register("lancer-initiative", "act-sort-last", {
-    name: game.i18n.localize("LANCERINITIATIVE.ActivatedLast"),
-    hint: game.i18n.localize("LANCERINITIATIVE.ActivatedLastDesc"),
+  game.settings.register("lancer-initiative", "sort", {
+    name: game.i18n.localize("LANCERINITIATIVE.SortTracker"),
+    hint: game.i18n.localize("LANCERINITIATIVE.SortTrackerDesc"),
     scope: "world",
     config: true,
     type: Boolean,
