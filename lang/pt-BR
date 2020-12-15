@@ -1,0 +1,17 @@
+{
+  "LANCERINITIATIVE.PCColor": "Cor dos Jogadores",
+  "LANCERINITIATIVE.PCColorDesc": "Padrão: $44abe0",
+  "LANCERINITIATIVE.NeutralColor": "Cor dos Neutros",
+  "LANCERINITIATIVE.NeutralColorDesc": "Padrão: #146464",
+  "LANCERINITIATIVE.EnemyColor": "Cor dos Hostis",
+  "LANCERINITIATIVE.EnemyColorDesc": "Padrão: #d98f30",
+  "LANCERINITIATIVE.DoneColor": "Cor dos Inativos",
+  "LANCERINITIATIVE.DoneColorDesc": "Padrão: #444444",
+  "LANCERINITIATIVE.Icon": "Ícone de Ação",
+  "LANCERINITIATIVE.IconDesc": "Classes CSS que definem o ícone de activação; li-icon, li-icon-large e li-icon-xlarge estão disponíveis caso precise aumentar o tamanho.",
+  "LANCERINITIATIVE.ActivatedLast": "Unidades Ativadas no Fundo",
+  "LANCERINITIATIVE.ActivatedLastDesc": "Move as unidades que já passaram seu turno para o fim do monitor de combate.",
+  "LANCERINITIATIVE.AddActivation": "Adicionar Ativação",
+  "LANCERINITIATIVE.RemoveActivation": "Remover Ativação",
+  "LANCERINITIATIVE.UndoActivation": "Desfazer Ativação"
+}
