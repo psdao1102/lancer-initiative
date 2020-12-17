@@ -81,7 +81,7 @@ export class LancerCombatTracker extends CombatTracker {
    * renderCombatTracker event
    * @static
    */
-  static handleRender(_, html, data) {
+  static handleRender(app, html, data) {
     const options = {
       friendly: game.settings.get("lancer-initiative", "pc-col"),
       neutral: game.settings.get("lancer-initiative", "nu-col"),
@@ -89,6 +89,7 @@ export class LancerCombatTracker extends CombatTracker {
       inactive: game.settings.get("lancer-initiative", "xx-col"),
       icon: game.settings.get("lancer-initiative", "icon"),
       icon_size: game.settings.get("lancer-initiative", "icon-size").toString() + "rem",
+      enable_initiative: game.settings.get("lancer-initiative", "enable-initiative"),
     };
     html.find(".combatant").each((_, element) => {
       const c_id = element.dataset.combatantId;
@@ -134,6 +135,23 @@ export class LancerCombatTracker extends CombatTracker {
       init_div.addEventListener("click", async _ => {
         await data.combat.activateCombatant(c_id);
       });
+
+      // This may be removed in a future update. It definitely needs a
+      // clean-up.
+      if (
+        options.enable_initiative &&
+        combatant.permission === ENTITY_PERMISSIONS.OWNER &&
+        combatant.initiative === null
+      ) {
+        let init_button = document.createElement("a");
+        init_button.classList.add("combatant-control");
+        init_button.setAttribute("title", game.i18n.localize("COMBAT.InitiativeRoll"));
+        init_button.setAttribute("data-control", "rollInitiative");
+        init_button.innerHTML = `<i class="fas fa-dice-d20"></i>`;
+        init_button.addEventListener("click", async e => app._onCombatantControl(e));
+        const controls = element.getElementsByClassName("combatant-controls")[0];
+        controls.insertAdjacentElement("afterbegin", init_button);
+      }
     });
   }
 }

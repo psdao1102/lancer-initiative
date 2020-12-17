@@ -67,6 +67,14 @@ function registerSettings() {
     type: Boolean,
     default: false,
   });
+  game.settings.register("lancer-initiative", "enable-initiative", {
+    name: game.i18n.localize("LANCERINITIATIVE.EnableInitiative"),
+    hint: game.i18n.localize("LANCERINITIATIVE.EnableInitiativeDesc"),
+    scope: "world",
+    config: !!CONFIG.Combat.initiative.formula,
+    type: Boolean,
+    default: false,
+  });
 
   // Override classes
   CONFIG.Combat.entityClass = LancerCombat;
