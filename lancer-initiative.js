@@ -82,4 +82,3 @@ function registerSettings() {
 }
 
 Hooks.once("init", registerSettings);
-Hooks.on("renderCombatTracker", LancerCombatTracker.handleRender);

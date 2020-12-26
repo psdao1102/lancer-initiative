@@ -16,11 +16,11 @@ export class LancerCombat extends Combat {
 
     c.flags.dummy = c.flags.dummy ?? false;
     // Set an arbitrary initiative so that attempting to roll doesn't raise an
-    // exception for the dummy. The more I work on this the more I realize that
-    // I'll need to raise the myriad problems to upstream. If Foundry starts
-    // validating whether combatants have a tokenId on creation, this module is
-    // dead unless a new workaround can be found.
-    if (c.flags.dummy) c.initiative = -1;
+    // exception for the dummy.
+    if (c.flags.dummy) {
+      c.initiative = -1;
+      c.visible = false;
+    }
 
     return c;
   }

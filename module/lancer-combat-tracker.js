@@ -9,10 +9,8 @@ export class LancerCombatTracker extends CombatTracker {
   async getData(options) {
     let data = await super.getData(options);
     const sort = game.settings.get("lancer-initiative", "sort");
-    if (!data.hasCombat) return data;
-    let turns = Array.from(data.turns).filter(t => !t.flags.dummy);
     if (sort) {
-      turns = turns.sort(function (a, b) {
+      data.turns.sort(function (a, b) {
         const aa = a.css.indexOf("active") !== -1;
         const ba = b.css.indexOf("active") !== -1;
         if (ba - aa !== 0) return ba - aa;
@@ -21,9 +19,87 @@ export class LancerCombatTracker extends CombatTracker {
         return ad - bd;
       });
     }
-    return mergeObject(data, {
-      turns: turns,
+    return data;
+  }
+
+  /**
+   * Make all the changes to the combat tracker before setting up event
+   * handlers.
+   * @override
+   */
+  async _renderInner(data, options) {
+    let html = await super._renderInner(data, options);
+    const settings = {
+      friendly: game.settings.get("lancer-initiative", "pc-col"),
+      neutral: game.settings.get("lancer-initiative", "nu-col"),
+      hostile: game.settings.get("lancer-initiative", "en-col"),
+      inactive: game.settings.get("lancer-initiative", "xx-col"),
+      icon: game.settings.get("lancer-initiative", "icon"),
+      icon_size: game.settings.get("lancer-initiative", "icon-size").toString() + "rem",
+      enable_initiative: game.settings.get("lancer-initiative", "enable-initiative"),
+    };
+    html.find(".combatant").each(async (_, li) => {
+      const combatantId = $(li).data("combatantId");
+      const combatant = data.combat.getCombatant(combatantId);
+
+      // Retrieve settings
+      let color = "";
+      switch (combatant.token?.disposition) {
+        case 1: // Player
+          color = settings.friendly;
+          break;
+        case 0: // Neutral
+          color = settings.neutral;
+          break;
+        case -1: // Hostile
+          color = settings.hostile;
+          break;
+        default:
+      }
+
+      $(li).css("border-color", color);
+
+      // render icons
+      let n = combatant.flags.activations.value;
+      let d = combatant.flags.activations.max - n;
+      $(li)
+        .find(".token-initiative")
+        .addClass("combatant-control")
+        .attr("data-control", "activate")
+        .html(
+          `<a class="${settings.icon}"
+            style="color: ${color}; font-size: ${settings.icon_size}"
+            ></a>`.repeat(n) +
+            `<a class="${settings.icon}"
+              style="color: ${settings.inactive}; font-size: ${settings.icon_size}"
+              ></a>`.repeat(d)
+        );
+
+      if (
+        settings.enable_initiative &&
+        combatant.permission === ENTITY_PERMISSIONS.OWNER &&
+        combatant.initiative === null
+      ) {
+        let init_button = document.createElement("a");
+        $(li).find(".combatant-controls").prepend($(init_button));
+        $(init_button)
+          .addClass("combatant-control")
+          .attr("data-control", "rollInitiative")
+          .prop("title", game.i18n.localize("COMBAT.InitiativeRoll"))
+          .html('<i class="fas fa-dice-d20"></a>');
+      }
     });
+    return html;
+  }
+
+  /** @override */
+  async _onCombatantControl(event) {
+    const btn = event.currentTarget;
+    if (btn.dataset.control !== "activate") return super._onCombatantControl(event);
+    event.preventDefault();
+    event.stopPropagation();
+    const id = btn.closest(".combatant").dataset.combatantId;
+    await this.combat.activateCombatant(id);
   }
 
   /**
@@ -74,84 +150,5 @@ export class LancerCombatTracker extends CombatTracker {
     ];
     m.push(...super._getEntryContextOptions().filter(i => i.name !== "COMBAT.CombatantReroll"));
     return m;
-  }
-
-  /**
-   * Helper function to modify the combat tracker. Must be hooked to the
-   * renderCombatTracker event
-   * @static
-   */
-  static handleRender(app, html, data) {
-    const options = {
-      friendly: game.settings.get("lancer-initiative", "pc-col"),
-      neutral: game.settings.get("lancer-initiative", "nu-col"),
-      hostile: game.settings.get("lancer-initiative", "en-col"),
-      inactive: game.settings.get("lancer-initiative", "xx-col"),
-      icon: game.settings.get("lancer-initiative", "icon"),
-      icon_size: game.settings.get("lancer-initiative", "icon-size").toString() + "rem",
-      enable_initiative: game.settings.get("lancer-initiative", "enable-initiative"),
-    };
-    html.find(".combatant").each((_, element) => {
-      const c_id = element.dataset.combatantId;
-      const combatant = data.combat.getCombatant(c_id);
-
-      if (combatant.flags?.dummy === true) return;
-
-      const init_div = element.getElementsByClassName("token-initiative")[0];
-
-      // Retrieve settings
-      let color = "";
-      let done_color = options.inactive;
-      switch (combatant.token?.disposition) {
-        case 1: // Player
-          color = options.friendly;
-          break;
-        case 0: // Neutral
-          color = options.neutral;
-          break;
-        case -1: // Hostile
-          color = options.hostile;
-          break;
-        default:
-      }
-      let icon = options.icon;
-      let icon_size = options.icon_size;
-
-      //get activations
-      let pending = combatant.flags.activations?.value;
-      if (pending === undefined) pending = 0;
-      let finished = combatant.flags.activations?.max - pending;
-
-      init_div.innerHTML = `<a class='${icon}' title='Activate' style='color: ${color}; font-size: ${icon_size}'></a>`.repeat(
-        pending
-      );
-      init_div.innerHTML += `<a class='${icon}' title='Activate' style='color: ${done_color}; font-size: ${icon_size}'></a>`.repeat(
-        finished
-      );
-
-      element.style.borderColor = color;
-
-      // Create click action
-      init_div.addEventListener("click", async _ => {
-        await data.combat.activateCombatant(c_id);
-      });
-
-      // This may be removed in a future update. It definitely needs a
-      // clean-up.
-      if (
-        options.enable_initiative &&
-        combatant.permission === ENTITY_PERMISSIONS.OWNER &&
-        combatant.initiative === null
-      ) {
-        let init_button = document.createElement("a");
-        init_button.classList.add("combatant-control");
-        init_button.setAttribute("title", game.i18n.localize("COMBAT.InitiativeRoll"));
-        init_button.setAttribute("data-control", "rollInitiative");
-        init_button.innerHTML = `<i class="fas fa-dice-d20"></i>`;
-        init_button.addEventListener("click", async e => app._onCombatantControl(e));
-        const controls = element.getElementsByClassName("combatant-controls")[0];
-        controls.insertAdjacentElement("afterbegin", init_button);
-      }
-    });
   }
 }
