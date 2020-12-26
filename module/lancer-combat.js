@@ -34,7 +34,7 @@ export class LancerCombat extends Combat {
     if (a.flags.dummy) return -1;
     if (b.flags.dummy) return 1;
     // Sort by Players then Neutrals then Hostiles
-    const dc = (b.token?.disposition ?? 2) - (a.token?.disposition ?? 2);
+    const dc = (b.token?.disposition ?? -2) - (a.token?.disposition ?? -2);
     if (dc !== 0) return dc;
     return super._sortCombatants(a, b);
   }
