@@ -70,9 +70,9 @@ export class LancerCombatTracker extends CombatTracker {
           `<a class="${settings.icon}"
             style="color: ${color}; font-size: ${settings.icon_size}"
             ></a>`.repeat(n) +
-            `<a class="${settings.icon}"
+            `<i class="${settings.icon}"
               style="color: ${settings.inactive}; font-size: ${settings.icon_size}"
-              ></a>`.repeat(d)
+              ></i>`.repeat(d)
         );
 
       if (
@@ -96,7 +96,10 @@ export class LancerCombatTracker extends CombatTracker {
     return html;
   }
 
-  /** @override */
+  /**
+   * Adds activate to the combat control options.
+   * @override
+   */
   async _onCombatantControl(event) {
     const btn = event.currentTarget;
     if (btn.dataset.control !== "activate") return super._onCombatantControl(event);
