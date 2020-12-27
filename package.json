@@ -1,6 +1,6 @@
 {
   "name": "lancer-initiative",
-  "version": "0.3.3",
+  "version": "0.4.4",
   "description": "Lancer Initiative",
   "main": "lancer-initiative.js",
   "devDependencies": {

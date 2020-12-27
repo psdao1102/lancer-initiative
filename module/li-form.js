@@ -11,14 +11,11 @@ export class LIForm extends FormApplication {
 
   /* override */
   getData(_) {
-    return {
-      "player": game.settings.get("lancer-initiative", "pc-col"),
-      "neutral": game.settings.get("lancer-initiative", "nu-col"),
-      "enemy": game.settings.get("lancer-initiative", "en-col"),
-      "done": game.settings.get("lancer-initiative", "xx-col"),
-      icon: game.settings.get("lancer-initiative", "icon"),
-      "icon-size": game.settings.get("lancer-initiative", "icon-size"),
-    };
+    return mergeObject(
+      CONFIG.LancerInitiative.def_appearance,
+      game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
+      { inplace: false }
+    );
   }
 
   /* @override */
@@ -31,7 +28,7 @@ export class LIForm extends FormApplication {
     });
 
     // Update the preview icon size
-    html.find('input[name="icon-size"]').change(e => {
+    html.find('input[name="icon_size"]').change(e => {
       html.find("a.preview").each((_, i) => {
         i.style.fontSize = e.target.value + "rem";
       });
@@ -42,7 +39,7 @@ export class LIForm extends FormApplication {
       html.find("a.preview").each((_, i) => {
         i.style.color = e.target.value;
       });
-      if ( e.target.name === "done_selector") return;
+      if (e.target.name === "done_selector") return;
       html.find("li.combatant").each((_, i) => {
         i.style.borderColor = e.target.value;
       });
@@ -53,12 +50,11 @@ export class LIForm extends FormApplication {
 
   /* @override */
   _updateObject(_, data) {
-    game.settings.set("lancer-initiative", "pc-col", data["player"]);
-    game.settings.set("lancer-initiative", "nu-col", data["neutral"]);
-    game.settings.set("lancer-initiative", "en-col", data["enemy"]);
-    game.settings.set("lancer-initiative", "xx-col", data["done"]);
-    game.settings.set("lancer-initiative", "icon", data["icon"]);
-    game.settings.set("lancer-initiative", "icon-size", data["icon-size"]);
+    game.settings.set(
+      CONFIG.LancerInitiative.module,
+      "appearance",
+      diffObject(CONFIG.LancerInitiative.def_appearance, data, { inner: true })
+    );
   }
 
   /**
@@ -67,12 +63,7 @@ export class LIForm extends FormApplication {
    * @return {Promise.<HTMLElement>} the promise returned by super.render();
    */
   async resetSettings() {
-    await game.settings.set("lancer-initiative", "pc-col");
-    await game.settings.set("lancer-initiative", "nu-col");
-    await game.settings.set("lancer-initiative", "en-col");
-    await game.settings.set("lancer-initiative", "xx-col");
-    await game.settings.set("lancer-initiative", "icon");
-    await game.settings.set("lancer-initiative", "icon-size");
+    await game.settings.set(CONFIG.LancerInitiative.module, "appearance", {});
     return this.render();
   }
 }

@@ -7,15 +7,15 @@
   </div>
   <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.IconSize" }}</label>
-    <input type="range" name="icon-size" min="1" max="4" step="0.1" value="{{ icon-size }}" data-dtype="Number"/>
-    <span class="range-value">{{ icon-size }}</span>
+    <input type="range" name="icon_size" min="1" max="4" step="0.1" value="{{ icon_size }}" data-dtype="Number"/>
+    <span class="range-value">{{ icon_size }}</span>
     <!--<p class="notes">{{ localize "LANCERINITIATIVE.IconSizeDesc" }}</p>-->
   </div>
 
   <div class="app" id="preview-combat">
     <section class="sidebar-tab tab" id="combat">
       <ol id="combat-tracker" class="directory-list">
-        <li class="combatant actor directory-item flexrow" style="border-color: {{ player }}">
+        <li class="combatant actor directory-item flexrow" style="border-color: {{ player_color }}">
           <img src="icons/svg/mystery-man.svg">
           <div class="token-name flexcol">
             <h4>{{ localize "LANCERINITIATIVE.IconPreview" }}</h4>
@@ -32,7 +32,7 @@
             <span class="resource"></span>
           </div>
           <div class="token-initiative">
-            <a class="preview {{ icon }}" style="color: {{ player }}; font-size: {{ icon-size }}rem"></a>
+            <a class="preview {{ icon }}" style="color: {{ player_color }}; font-size: {{ icon_size }}rem"></a>
           </div>
         </li>
       </ol>
@@ -42,32 +42,32 @@
   <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.PCColor" }}</label>
     <div class="form-fields">
-      <input type="text" name="player" value="{{ player }}" data-dtype="String"/>
-      <input type="color" name="player_selector" value="{{ player }}" data-edit="player"/>
+      <input type="text" name="player_color" value="{{ player_color }}" data-dtype="String"/>
+      <input type="color" name="player_selector" value="{{ player_color }}" data-edit="player_color"/>
     </div>
     <p class="notes">{{ localize "LANCERINITIATIVE.PCColorDesc" }}</p>
   </div>
   <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.NeutralColor" }}</label>
     <div class="form-fields">
-      <input type="text" name="neutral" value="{{ neutral }}" data-dtype="String"/>
-      <input type="color" name="neutral_selector" value="{{ neutral }}" data-edit="neutral"/>
+      <input type="text" name="neutral_color" value="{{ neutral_color }}" data-dtype="String"/>
+      <input type="color" name="neutral_selector" value="{{ neutral_color }}" data-edit="neutral_color"/>
     </div>
     <p class="notes">{{ localize "LANCERINITIATIVE.NeutralColorDesc" }}</p>
   </div>
   <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.EnemyColor" }}</label>
     <div class="form-fields">
-      <input type="text" name="enemy" value="{{ enemy }}" data-dtype="String"/>
-      <input type="color" name="enemy_selector" value="{{ enemy }}" data-edit="enemy"/>
+      <input type="text" name="enemy_color" value="{{ enemy_color }}" data-dtype="String"/>
+      <input type="color" name="enemy_selector" value="{{ enemy_color }}" data-edit="enemy_color"/>
     </div>
     <p class="notes">{{ localize "LANCERINITIATIVE.EnemyColorDesc" }}</p>
   </div>
   <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.DoneColor" }}</label>
     <div class="form-fields">
-      <input type="text" name="done" value="{{ done }}" data-dtype="String"/>
-      <input type="color" name="done_selector" value="{{ done }}" data-edit="done"/>
+      <input type="text" name="done_color" value="{{ done_color }}" data-dtype="String"/>
+      <input type="color" name="done_selector" value="{{ done_color }}" data-edit="done_color"/>
     </div>
     <p class="notes">{{ localize "LANCERINITIATIVE.DoneColorDesc" }}</p>
   </div>

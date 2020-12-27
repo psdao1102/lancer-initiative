@@ -29,15 +29,15 @@ export class LancerCombatTracker extends CombatTracker {
    */
   async _renderInner(data, options) {
     let html = await super._renderInner(data, options);
-    const settings = {
-      friendly: game.settings.get("lancer-initiative", "pc-col"),
-      neutral: game.settings.get("lancer-initiative", "nu-col"),
-      hostile: game.settings.get("lancer-initiative", "en-col"),
-      inactive: game.settings.get("lancer-initiative", "xx-col"),
-      icon: game.settings.get("lancer-initiative", "icon"),
-      icon_size: game.settings.get("lancer-initiative", "icon-size").toString() + "rem",
-      enable_initiative: game.settings.get("lancer-initiative", "enable-initiative"),
-    };
+    const settings = mergeObject(
+      CONFIG.LancerInitiative.def_appearance,
+      game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
+      { inplace: false }
+    );
+    settings.enable_initiative = game.settings.get(
+      CONFIG.LancerInitiative.module,
+      "enable-initiative"
+    );
     html.find(".combatant").each(async (_, li) => {
       const combatantId = $(li).data("combatantId");
       const combatant = data.combat.getCombatant(combatantId);
@@ -46,13 +46,13 @@ export class LancerCombatTracker extends CombatTracker {
       let color = "";
       switch (combatant.token?.disposition) {
         case 1: // Player
-          color = settings.friendly;
+          color = settings.player_color;
           break;
         case 0: // Neutral
-          color = settings.neutral;
+          color = settings.neutral_color;
           break;
         case -1: // Hostile
-          color = settings.hostile;
+          color = settings.enemy_color;
           break;
         default:
       }
@@ -67,10 +67,10 @@ export class LancerCombatTracker extends CombatTracker {
         .attr("data-control", "activate")
         .html(
           `<a class="${settings.icon}"
-            style="color: ${color}; font-size: ${settings.icon_size}"
+            style="color: ${color}; font-size: ${settings.icon_size}rem"
             ></a>`.repeat(n) +
             `<i class="${settings.icon}"
-              style="color: ${settings.inactive}; font-size: ${settings.icon_size}"
+              style="color: ${settings.done_color}; font-size: ${settings.icon_size}rem"
               ></i>`.repeat(d)
         );
 
