@@ -64,7 +64,6 @@ export class LancerCombatTracker extends CombatTracker {
       let d = combatant.flags.activations.max - n;
       $(li)
         .find(".token-initiative")
-        .addClass("combatant-control")
         .attr("data-control", "activate")
         .html(
           `<a class="${settings.icon}"
@@ -96,15 +95,19 @@ export class LancerCombatTracker extends CombatTracker {
     return html;
   }
 
+  /** @override */
+  activateListeners(html) {
+    super.activateListeners(html);
+    html.find(".token-initiative").on("click", this._onActivateCombatant.bind(this));
+  }
+
   /**
-   * Adds activate to the combat control options.
-   * @override
+   * Activate the selected combatant
    */
-  async _onCombatantControl(event) {
-    const btn = event.currentTarget;
-    if (btn.dataset.control !== "activate") return super._onCombatantControl(event);
+  async _onActivateCombatant(event) {
     event.preventDefault();
     event.stopPropagation();
+    const btn = event.currentTarget;
     const id = btn.closest(".combatant").dataset.combatantId;
     await this.combat.activateCombatant(id);
   }
