@@ -51,7 +51,6 @@ function registerSettings() {
     scope: "world",
     config: false,
     type: Object,
-    config: false,
   });
   game.settings.register(CONFIG.LancerInitiative.module, "sort", {
     name: game.i18n.localize("LANCERINITIATIVE.SortTracker"),

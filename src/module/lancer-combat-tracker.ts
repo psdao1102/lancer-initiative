@@ -1,21 +1,21 @@
 export class LancerCombatTracker extends CombatTracker {
   /**
-   * @override
    * Intercepts the data being sent to the combat tracker window and
    * optionally sorts the the turn data that gets displayed. This allows the
    * units that have already gone to be moved to the bottom without the risk of
    * updateCombat events being eaten.
+   * @override
    */
-  async getData(options) {
+  async getData(options: any) {
     let data = await super.getData(options);
-    const sort = game.settings.get("lancer-initiative", "sort");
+    const sort = game.settings.get(CONFIG.LancerInitiative.module, "sort");
     if (sort) {
-      data.turns.sort(function (a, b) {
-        const aa = a.css.indexOf("active") !== -1;
-        const ba = b.css.indexOf("active") !== -1;
+      data.turns.sort(function (a: any, b: any) {
+        const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
+        const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
         if (ba - aa !== 0) return ba - aa;
-        const ad = a.flags.activations.value === 0;
-        const bd = b.flags.activations.value === 0;
+        const ad = a.flags.activations.value === 0 ? 1 : 0;
+        const bd = b.flags.activations.value === 0 ? 1 : 0;
         return ad - bd;
       });
     }
@@ -27,8 +27,8 @@ export class LancerCombatTracker extends CombatTracker {
    * handlers.
    * @override
    */
-  async _renderInner(data, options) {
-    let html = await super._renderInner(data, options);
+  async _renderInner(data: any, options: any) {
+    let html = await super._renderInner(data, options) as JQuery<HTMLElement>;
     const settings = mergeObject(
       CONFIG.LancerInitiative.def_appearance,
       game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
@@ -38,7 +38,7 @@ export class LancerCombatTracker extends CombatTracker {
       CONFIG.LancerInitiative.module,
       "enable-initiative"
     );
-    html.find(".combatant").each(async (_, li) => {
+    html.find(".combatant").each((_: number , li: HTMLElement) => {
       const combatantId = $(li).data("combatantId");
       const combatant = data.combat.getCombatant(combatantId);
 
@@ -76,7 +76,7 @@ export class LancerCombatTracker extends CombatTracker {
 
       if (
         settings.enable_initiative &&
-        combatant.permission === ENTITY_PERMISSIONS.OWNER &&
+        combatant.permission === 3 &&
         combatant.initiative === null
       ) {
         let init_button = document.createElement("a");
@@ -96,7 +96,7 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   /** @override */
-  activateListeners(html) {
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     html.find(".token-initiative").on("click", this._onActivateCombatant.bind(this));
   }
@@ -104,7 +104,7 @@ export class LancerCombatTracker extends CombatTracker {
   /**
    * Activate the selected combatant
    */
-  async _onActivateCombatant(event) {
+  async _onActivateCombatant(event: any) {
     event.preventDefault();
     event.stopPropagation();
     const btn = event.currentTarget;
@@ -113,7 +113,6 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   /**
-   * @return {any[]}
    * @override
    */
   _getEntryContextOptions() {
@@ -121,7 +120,7 @@ export class LancerCombatTracker extends CombatTracker {
       {
         name: game.i18n.localize("LANCERINITIATIVE.AddActivation"),
         icon: '<i class="fas fa-plus"></i>',
-        callback: async li => {
+        callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
           let max = combatant.flags.activations.max + 1;
           await this.combat.updateCombatant({
@@ -133,7 +132,7 @@ export class LancerCombatTracker extends CombatTracker {
       {
         name: game.i18n.localize("LANCERINITIATIVE.RemoveActivation"),
         icon: '<i class="fas fa-minus"></i>',
-        callback: async li => {
+        callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
           let max = combatant.flags.activations.max - 1;
           let cur = Math.clamped(combatant.flags.activations.value, 0, max > 0 ? max : 1);
@@ -147,7 +146,7 @@ export class LancerCombatTracker extends CombatTracker {
       {
         name: game.i18n.localize("LANCERINITIATIVE.UndoActivation"),
         icon: '<i class="fas fa-undo"></i>',
-        callback: li => {
+        callback: (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
           let max = combatant.flags.activations.max;
           let cur = Math.clamped(combatant.flags.activations.value + 1, 0, max > 0 ? max : 1);
@@ -158,7 +157,7 @@ export class LancerCombatTracker extends CombatTracker {
         },
       },
     ];
-    m.push(...super._getEntryContextOptions().filter(i => i.name !== "COMBAT.CombatantReroll"));
+    m.push(...super._getEntryContextOptions().filter((i: any) => i.name !== "COMBAT.CombatantReroll"));
     return m;
   }
 }

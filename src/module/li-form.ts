@@ -1,5 +1,5 @@
 export class LIForm extends FormApplication {
-  /* @override */
+  /** @override */
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       title: "Lancer Intiative",
@@ -9,8 +9,8 @@ export class LIForm extends FormApplication {
     });
   }
 
-  /* override */
-  getData(_) {
+  /** @override */
+  getData(_: any) {
     return mergeObject(
       CONFIG.LancerInitiative.def_appearance,
       game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
@@ -18,38 +18,36 @@ export class LIForm extends FormApplication {
     );
   }
 
-  /* @override */
-  activateListeners(html) {
+  /** @override */
+  activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
     //update the preview icon
-    html.find('input[name="icon"]').change(e => {
-      html.find("a.preview").each((_, i) => (i.classList = e.target.value + " preview"));
+    html.find('input[name="icon"]').on("change", e => {
+      html
+        .find("a.preview")
+        .removeClass()
+        .addClass("preview")
+        .addClass($(e.target).val() as string);
     });
 
     // Update the preview icon size
-    html.find('input[name="icon_size"]').change(e => {
-      html.find("a.preview").each((_, i) => {
-        i.style.fontSize = e.target.value + "rem";
-      });
+    html.find('input[name="icon_size"]').on("change", e => {
+      html.find("a.preview").css("font-size", $(e.target).val() + "rem");
     });
 
     // Set the preview icon color to the last hovered color picker
-    html.find('input[type="color"]').hover(e => {
-      html.find("a.preview").each((_, i) => {
-        i.style.color = e.target.value;
-      });
-      if (e.target.name === "done_selector") return;
-      html.find("li.combatant").each((_, i) => {
-        i.style.borderColor = e.target.value;
-      });
+    html.find('input[type="color"]').on("mouseenter mouseleave", e => {
+      html.find("a.preview").css("color", $(e.target).val() as string);
+      if ($(e.target).attr("name") === "done_selector") return;
+      html.find("li.combatant").css("border-color", $(e.target).val() as string);
     });
 
-    html.find('button[name="reset"]').click(this.resetSettings.bind(this));
+    html.find('button[name="reset"]').on("click", this.resetSettings.bind(this));
   }
 
-  /* @override */
-  _updateObject(_, data) {
+  /** @override */
+  async _updateObject(_: Event | JQuery.Event, data: any) {
     game.settings.set(
       CONFIG.LancerInitiative.module,
       "appearance",
@@ -60,7 +58,6 @@ export class LIForm extends FormApplication {
   /**
    * Sets all settings handled by the form to undefined in order to revert to
    * their default values.
-   * @return {Promise.<HTMLElement>} the promise returned by super.render();
    */
   async resetSettings() {
     await game.settings.set(CONFIG.LancerInitiative.module, "appearance", {});

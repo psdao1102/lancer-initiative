@@ -1,12 +1,6 @@
 export class LancerCombat extends Combat {
-  /**
-   * @param {object} c Combatant
-   * @param {Scene} scene Scen containing the combat
-   * @param {User[]} players
-   * @param {object} settings
-   * @override
-   */
-  _prepareCombatant(c, scene, players, settings = {}) {
+  /** @override */
+  _prepareCombatant(c: any, scene: Scene, players: Users, settings = {}) {
     c = super._prepareCombatant(c, scene, players, settings);
 
     // Populate activation data
@@ -25,12 +19,8 @@ export class LancerCombat extends Combat {
     return c;
   }
 
-  /**
-   * @param {object} a Combatant
-   * @param {object} b Combatant
-   * @override
-   */
-  _sortCombatants(a, b) {
+  /** @override */
+  _sortCombatants(a: any, b: any) {
     if (a.flags.dummy) return -1;
     if (b.flags.dummy) return 1;
     // Sort by Players then Neutrals then Hostiles
@@ -39,13 +29,8 @@ export class LancerCombat extends Combat {
     return super._sortCombatants(a, b);
   }
 
-  /**
-   * @param {object} data
-   * @param {object} options
-   * @param {string} userId
-   * @override
-   */
-  _onCreate(data, options, userId) {
+  /** @override */
+  _onCreate(data: any, options: any, userId: string) {
     if (this.owner)
       this.createCombatant({
         "flags.dummy": true,
@@ -55,6 +40,7 @@ export class LancerCombat extends Combat {
   }
 
   /**
+   * Set all combatants to their max activations
    * @public
    */
   async resetActivations() {
@@ -68,37 +54,29 @@ export class LancerCombat extends Combat {
     await this.updateCombatant(updates);
   }
 
-  /**
-   * @override
-   */
+  /** @override */
   async startCombat() {
     await this.resetActivations();
     return super.startCombat();
   }
 
-  /**
-   * @override
-   */
+  /** @override */
   async nextRound() {
     await this.resetActivations();
     return super.nextRound();
   }
 
-  /**
-   * @override
-   */
-  async previousRound() {
+  /** @override */
+  async previousRound(): Promise<Combat> {
     await this.resetActivations();
     let turn = 0;
     const round = Math.max(this.round - 1, 0);
     let advanceTime = -1 * this.turn * CONFIG.time.turnTime;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
-    return this.update({ round, turn }, { advanceTime });
+    return this.update({ round, turn }, { advanceTime }) as Promise<Combat>;
   }
 
-  /**
-   * @override
-   */
+  /** @override */
   async resetAll() {
     await this.resetActivations();
     return super.resetAll();
@@ -106,9 +84,8 @@ export class LancerCombat extends Combat {
 
   /**
    * Sets the active turn to the combatant passed by id
-   * @param {string} id
    */
-  async activateCombatant(id) {
+  async activateCombatant(id: string) {
     if (!game.user.isGM) return;
     let c = this.getCombatant(id);
     let val = c.flags.activations.value;
@@ -117,7 +94,7 @@ export class LancerCombat extends Combat {
       _id: id,
       "flags.activations.value": val - 1,
     });
-    const turn = this.turns.findIndex(t => t._id === id);
+    const turn = this.turns.findIndex((t: any) => t._id === id);
     return this.update({ turn });
   }
 }

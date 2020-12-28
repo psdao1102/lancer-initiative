@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "lib": ["ES6", "ES2017", "DOM"],
+    "types": ["foundry-pc-types"],
+    "strict": true,
+    "skipLibCheck": true
+  }
+}
