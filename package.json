@@ -2,12 +2,17 @@
   "name": "lancer-initiative",
   "version": "0.5.0",
   "description": "Lancer Initiative",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "devDependencies": {
     "foundry-pc-types": "gitlab:BoltsJ/foundry-pc-types",
     "prettier": "^2.2.1",
     "typescript": "^4.1.3"
   },
-  "scripts": {},
+  "scripts": {
+    "prepare": "tsc",
+    "build:foundryvtt": "tsc --project tsconfig.foundry.json && cp -r ./src/lang ./src/module.json ./src/lancer-initiative.css ./src/templates ./lancer-initiative/"
+  },
   "author": "",
   "license": ""
 }
