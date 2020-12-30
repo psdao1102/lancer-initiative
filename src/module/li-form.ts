@@ -27,8 +27,7 @@ export class LIForm extends FormApplication {
       html
         .find("a.preview")
         .removeClass()
-        .addClass("preview")
-        .addClass($(e.target).val() as string);
+        .addClass($(e.target).val() + " preview");
     });
 
     // Update the preview icon size

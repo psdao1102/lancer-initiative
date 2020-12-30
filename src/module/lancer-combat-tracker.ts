@@ -85,7 +85,7 @@ export class LancerCombatTracker extends CombatTracker {
           .addClass("combatant-control")
           .attr("data-control", "rollInitiative")
           .prop("title", game.i18n.localize("COMBAT.InitiativeRoll"))
-          .html('<i class="fas fa-dice-d20"></a>');
+          .html('<i class="fas fa-dice-d20"></i>');
       } else if (settings.enable_initiative && combatant.initiative !== null) {
         let init_val = document.createElement("span");
         $(li).find(".combatant-controls").prepend($(init_val));

@@ -1,6 +1,6 @@
 export class LancerCombat extends Combat {
   /** @override */
-  _prepareCombatant(c: any, scene: Scene, players: Users, settings = {}) {
+  _prepareCombatant(c: any, scene: Scene, players: any[], settings = {}) {
     c = super._prepareCombatant(c, scene, players, settings);
 
     // Populate activation data
