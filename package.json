@@ -11,7 +11,8 @@
   },
   "scripts": {
     "prepare": "tsc",
-    "build:foundryvtt": "tsc --project tsconfig.foundry.json && cp -r ./src/lang ./src/module.json ./src/lancer-initiative.css ./src/templates ./lancer-initiative/"
+    "build:foundryvtt": "tsc --project tsconfig.foundry.json && cp -r ./src/lang ./src/module.json ./src/lancer-initiative.css ./src/templates ./lancer-initiative/",
+    "watch": "tsc --project tsconfig.foundry.json --watch"
   },
   "author": "",
   "license": ""
