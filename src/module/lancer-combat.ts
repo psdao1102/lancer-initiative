@@ -105,7 +105,7 @@ export class LancerCombat extends Combat {
    * @private
    */
   async requestActivation(id: string) {
-    Hooks.callAll("LancerCombatRequestActivate", this, id, game.userId);
+    Hooks.callAll("LancerCombatRequestActivate", this, id);
     return this;
   }
 }
