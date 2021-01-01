@@ -86,15 +86,20 @@ export class LancerCombat extends Combat {
    * Sets the active turn to the combatant passed by id
    */
   async activateCombatant(id: string) {
-    if (!game.user.isGM) return;
+    if (!game.user.isGM) return this.requestActivation(id);
     let c = this.getCombatant(id);
     let val = c.flags.activations.value;
-    if (val === 0) return;
+    if (val === 0) return this;
     await this.updateCombatant({
       _id: id,
       "flags.activations.value": val - 1,
     });
     const turn = this.turns.findIndex((t: any) => t._id === id);
-    return this.update({ turn });
+    return this.update({ turn }) as Promise<this>;
+  }
+
+  async requestActivation(id: string) {
+    Hooks.callAll("LancerCombatRequestActivate", this, id, game.userId);
+    return this;
   }
 }
