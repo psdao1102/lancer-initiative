@@ -83,7 +83,9 @@ export class LancerCombat extends Combat {
   }
 
   /**
-   * Sets the active turn to the combatant passed by id
+   * Sets the active turn to the combatant passed by id or calls
+   * {@link LancerCombat#requestActivation()} if the user does not have
+   * permission to modify the combat
    */
   async activateCombatant(id: string) {
     if (!game.user.isGM) return this.requestActivation(id);
@@ -98,6 +100,10 @@ export class LancerCombat extends Combat {
     return this.update({ turn }) as Promise<this>;
   }
 
+  /**
+   * Calls any Hooks registered for "LancerCombatRequestActivate".
+   * @private
+   */
   async requestActivation(id: string) {
     Hooks.callAll("LancerCombatRequestActivate", this, id, game.userId);
     return this;
