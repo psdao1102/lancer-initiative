@@ -1,3 +1,8 @@
+/**
+ * Overrides the display of the combat and turn order tab to add activation
+ * buttons and either move or remove the initiative button
+ * @extends {CombatTracker}
+ */
 export class LancerCombatTracker extends CombatTracker {
   /**
    * Intercepts the data being sent to the combat tracker window and
@@ -103,6 +108,7 @@ export class LancerCombatTracker extends CombatTracker {
 
   /**
    * Activate the selected combatant
+   * @protected
    */
   async _onActivateCombatant(event: any) {
     event.preventDefault();
@@ -112,9 +118,7 @@ export class LancerCombatTracker extends CombatTracker {
     await this.combat.activateCombatant(id);
   }
 
-  /**
-   * @override
-   */
+  /** @override */
   _getEntryContextOptions() {
     let m = [
       {

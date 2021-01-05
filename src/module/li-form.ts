@@ -1,3 +1,8 @@
+/**
+ * Settings form for customizing the icon appearance of the icon used in the
+ * tracker
+ * @extends {FormApplication}
+ */
 export class LIForm extends FormApplication {
   /** @override */
   static get defaultOptions() {

@@ -1,3 +1,9 @@
+/**
+ * Overrides and extends the Combat class to use an activation model instead of
+ * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
+ * is added to the interface.
+ * @extends {Combat}
+ */
 export class LancerCombat extends Combat {
   /** @override */
   _prepareCombatant(c: any, scene: Scene, players: any[], settings = {}) {
@@ -102,7 +108,7 @@ export class LancerCombat extends Combat {
 
   /**
    * Calls any Hooks registered for "LancerCombatRequestActivate".
-   * @private
+   * @protected
    */
   async requestActivation(id: string) {
     Hooks.callAll("LancerCombatRequestActivate", this, id);
