@@ -6,7 +6,7 @@
  */
 export class LancerCombat extends Combat {
   /** @override */
-  _prepareCombatant(c: any, scene: Scene, players: any[], settings = {}) {
+  _prepareCombatant(c: Combat.Combatant, scene: Scene, players: User[], settings: any = {}) {
     c = super._prepareCombatant(c, scene, players, settings);
 
     // Populate activation data
@@ -26,7 +26,7 @@ export class LancerCombat extends Combat {
   }
 
   /** @override */
-  _sortCombatants(a: any, b: any) {
+  _sortCombatants(a: Combat.Combatant, b: Combat.Combatant) {
     if (a.flags.dummy) return -1;
     if (b.flags.dummy) return 1;
     // Sort by Players then Neutrals then Hostiles
@@ -36,7 +36,7 @@ export class LancerCombat extends Combat {
   }
 
   /** @override */
-  _onCreate(data: any, options: any, userId: string) {
+  _onCreate(data: Combat.Data, options: Entity.CreateOptions, userId: string) {
     if (this.owner)
       this.createCombatant({
         "flags.dummy": true,
@@ -50,7 +50,7 @@ export class LancerCombat extends Combat {
    * @public
    */
   async resetActivations() {
-    let updates = this.combatants.map(c => {
+    const updates = this.combatants.map(c => {
       return {
         _id: c._id,
         "flags.activations.value": c.defeated ? 0 : c.flags.activations.max,
@@ -73,13 +73,13 @@ export class LancerCombat extends Combat {
   }
 
   /** @override */
-  async previousRound(): Promise<Combat> {
+  async previousRound(): Promise<this> {
     await this.resetActivations();
-    let turn = 0;
+    const turn = 0;
     const round = Math.max(this.round - 1, 0);
     let advanceTime = -1 * this.turn * CONFIG.time.turnTime;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
-    return this.update({ round, turn }, { advanceTime }) as Promise<Combat>;
+    return this.update({ round, turn }, { advanceTime });
   }
 
   /** @override */
@@ -94,16 +94,17 @@ export class LancerCombat extends Combat {
    * permission to modify the combat
    */
   async activateCombatant(id: string) {
-    if (!game.user.isGM) return this.requestActivation(id);
-    let c = this.getCombatant(id);
-    let val = c.flags.activations.value;
+    if (game === null) throw "Game not set up";
+    if (!game.user?.isGM) return this.requestActivation(id);
+    const c = this.getCombatant(id);
+    const val = c.flags.activations.value;
     if (val === 0) return this;
     await this.updateCombatant({
       _id: id,
       "flags.activations.value": val - 1,
     });
-    const turn = this.turns.findIndex((t: any) => t._id === id);
-    return this.update({ turn }) as Promise<this>;
+    const turn = this.turns.findIndex(t => t._id === id);
+    return this.update({ turn });
   }
 
   /**

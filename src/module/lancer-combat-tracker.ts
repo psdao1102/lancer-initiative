@@ -12,9 +12,11 @@ export class LancerCombatTracker extends CombatTracker {
    * @override
    */
   async getData(options: any) {
-    let data = await super.getData(options);
+    if (game === null) throw "Game not set up";
+    const data = await (super.getData(options) as Promise<any>);
     const sort = game.settings.get(CONFIG.LancerInitiative.module, "sort");
     if (sort) {
+      // @ts-ignore getData returns a real object
       data.turns.sort(function (a: any, b: any) {
         const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
         const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
@@ -33,7 +35,8 @@ export class LancerCombatTracker extends CombatTracker {
    * @override
    */
   async _renderInner(data: any, options: any) {
-    let html = await super._renderInner(data, options) as JQuery<HTMLElement>;
+    if (!game) throw "Game not initialized";
+    const html = await super._renderInner(data, options);
     const settings = mergeObject(
       CONFIG.LancerInitiative.def_appearance,
       game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
@@ -44,6 +47,7 @@ export class LancerCombatTracker extends CombatTracker {
       "enable-initiative"
     );
     html.find(".combatant").each((_: number , li: HTMLElement) => {
+      if (!game) throw "Game not initialized";
       const combatantId = $(li).data("combatantId");
       const combatant = data.combat.getCombatant(combatantId);
 
@@ -65,8 +69,8 @@ export class LancerCombatTracker extends CombatTracker {
       $(li).css("border-color", color);
 
       // render icons
-      let n = combatant.flags.activations.value;
-      let d = combatant.flags.activations.max - n;
+      const n = combatant.flags.activations.value;
+      const d = combatant.flags.activations.max - n;
       $(li)
         .find(".token-initiative")
         .attr("data-control", "activate")
@@ -84,7 +88,7 @@ export class LancerCombatTracker extends CombatTracker {
         combatant.permission === 3 &&
         combatant.initiative === null
       ) {
-        let init_button = document.createElement("a");
+        const init_button = document.createElement("a");
         $(li).find(".combatant-controls").prepend($(init_button));
         $(init_button)
           .addClass("combatant-control")
@@ -92,7 +96,7 @@ export class LancerCombatTracker extends CombatTracker {
           .prop("title", game.i18n.localize("COMBAT.InitiativeRoll"))
           .html('<i class="fas fa-dice-d20"></i>');
       } else if (settings.enable_initiative && combatant.initiative !== null) {
-        let init_val = document.createElement("span");
+        const init_val = document.createElement("span");
         $(li).find(".combatant-controls").prepend($(init_val));
         $(init_val).addClass("initiative").css("flex", "0 0 1.5em").text(combatant.initiative);
       }
@@ -120,13 +124,14 @@ export class LancerCombatTracker extends CombatTracker {
 
   /** @override */
   _getEntryContextOptions() {
-    let m = [
+    if (!game) throw "Game not initialized";
+    const m = [
       {
         name: game.i18n.localize("LANCERINITIATIVE.AddActivation"),
         icon: '<i class="fas fa-plus"></i>',
         callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          let max = combatant.flags.activations.max + 1;
+          const max = combatant.flags.activations.max + 1;
           await this.combat.updateCombatant({
             _id: combatant._id,
             "flags.activations.max": max,
@@ -138,8 +143,8 @@ export class LancerCombatTracker extends CombatTracker {
         icon: '<i class="fas fa-minus"></i>',
         callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          let max = combatant.flags.activations.max - 1;
-          let cur = Math.clamped(combatant.flags.activations.value, 0, max > 0 ? max : 1);
+          const max = combatant.flags.activations.max - 1;
+          const cur = Math.clamped(combatant.flags.activations.value, 0, max > 0 ? max : 1);
           await this.combat.updateCombatant({
             _id: combatant._id,
             "flags.activations.max": max > 0 ? max : 1,
@@ -152,8 +157,8 @@ export class LancerCombatTracker extends CombatTracker {
         icon: '<i class="fas fa-undo"></i>',
         callback: (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          let max = combatant.flags.activations.max;
-          let cur = Math.clamped(combatant.flags.activations.value + 1, 0, max > 0 ? max : 1);
+          const max = combatant.flags.activations.max;
+          const cur = Math.clamped(combatant.flags.activations.value + 1, 0, max > 0 ? max : 1);
           this.combat.updateCombatant({
             _id: combatant._id,
             "flags.activations.value": cur,

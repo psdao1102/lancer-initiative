@@ -16,6 +16,7 @@ export class LIForm extends FormApplication {
 
   /** @override */
   getData(_: any) {
+    if (game === null) throw "Game not initialized";
     return mergeObject(
       CONFIG.LancerInitiative.def_appearance,
       game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
@@ -51,7 +52,8 @@ export class LIForm extends FormApplication {
   }
 
   /** @override */
-  async _updateObject(_: Event | JQuery.Event, data: any) {
+  async _updateObject(_: Event, data: any) {
+    if (game === null) throw "Game not initialized";
     game.settings.set(
       CONFIG.LancerInitiative.module,
       "appearance",
@@ -64,6 +66,7 @@ export class LIForm extends FormApplication {
    * their default values.
    */
   async resetSettings() {
+    if (game === null) throw "Game not initialized";
     await game.settings.set(CONFIG.LancerInitiative.module, "appearance", {});
     return this.render();
   }
