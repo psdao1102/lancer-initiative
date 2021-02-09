@@ -2,15 +2,21 @@
  * Overrides and extends the Combat class to use an activation model instead of
  * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
  * is added to the interface.
- * @extends {Combat}
  */
 export class LancerCombat extends Combat {
   /** @override */
-  _prepareCombatant(c: Combat.Combatant, scene: Scene, players: User[], settings: any = {}) {
+  _prepareCombatant(
+    c: Combat.Combatant,
+    scene: Scene,
+    players: User[],
+    settings: unknown = {}
+  ): Combat.Combatant {
     c = super._prepareCombatant(c, scene, players, settings);
 
     // Populate activation data
     c.flags.activations = c.flags.activations ?? {};
+    if (!isActivations(c.flags.activations))
+      throw new Error("Assertion failed for c.flags.activations");
     c.flags.activations.max = c.flags.activations.max ?? c.actor?.data.data?.activations ?? 1;
     c.flags.activations.value = c.flags.activations.value ?? 0;
 
@@ -26,7 +32,7 @@ export class LancerCombat extends Combat {
   }
 
   /** @override */
-  _sortCombatants(a: Combat.Combatant, b: Combat.Combatant) {
+  protected _sortCombatants(a: Combat.Combatant, b: Combat.Combatant): number {
     if (a.flags.dummy) return -1;
     if (b.flags.dummy) return 1;
     // Sort by Players then Neutrals then Hostiles
@@ -36,10 +42,10 @@ export class LancerCombat extends Combat {
   }
 
   /** @override */
-  _onCreate(data: Combat.Data, options: Entity.CreateOptions, userId: string) {
+  protected _onCreate(data: Combat.Data, options: Entity.CreateOptions, userId: string): void {
     if (this.owner)
       this.createCombatant({
-        "flags.dummy": true,
+        flags: { dummy: true },
         hidden: true,
       });
     super._onCreate(data, options, userId);
@@ -47,27 +53,30 @@ export class LancerCombat extends Combat {
 
   /**
    * Set all combatants to their max activations
-   * @public
    */
-  async resetActivations() {
+  async resetActivations(): Promise<void> {
     const updates = this.combatants.map(c => {
+      if (!isActivations(c.flags.activations))
+        throw new Error("Assertion failed for c.flags.activations");
       return {
         _id: c._id,
-        "flags.activations.value": c.defeated ? 0 : c.flags.activations.max,
-        "flags.activations.max": c.flags.activations.max,
+        flags: {
+          "activations.value": c.defeated ? 0 : c.flags.activations.max,
+          "activations.max": c.flags.activations.max,
+        },
       };
     });
     await this.updateCombatant(updates);
   }
 
   /** @override */
-  async startCombat() {
+  async startCombat(): Promise<this> {
     await this.resetActivations();
     return super.startCombat();
   }
 
   /** @override */
-  async nextRound() {
+  async nextRound(): Promise<void> {
     await this.resetActivations();
     return super.nextRound();
   }
@@ -75,15 +84,14 @@ export class LancerCombat extends Combat {
   /** @override */
   async previousRound(): Promise<this> {
     await this.resetActivations();
-    const turn = 0;
     const round = Math.max(this.round - 1, 0);
-    let advanceTime = -1 * this.turn * CONFIG.time.turnTime;
+    let advanceTime = 0;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
-    return this.update({ round, turn }, { advanceTime });
+    return this.update({ round, turn: 0 }, { advanceTime });
   }
 
   /** @override */
-  async resetAll() {
+  async resetAll(): Promise<this> {
     await this.resetActivations();
     return super.resetAll();
   }
@@ -93,15 +101,16 @@ export class LancerCombat extends Combat {
    * {@link LancerCombat#requestActivation()} if the user does not have
    * permission to modify the combat
    */
-  async activateCombatant(id: string) {
-    if (game === null) throw "Game not set up";
+  async activateCombatant(id: string): Promise<this> {
     if (!game.user?.isGM) return this.requestActivation(id);
     const c = this.getCombatant(id);
+    if (!isActivations(c.flags.activations))
+      throw new Error("Assertion failed for c.flags.activations");
     const val = c.flags.activations.value;
-    if (val === 0) return this;
+    if (val === 0 || val === undefined) return this;
     await this.updateCombatant({
       _id: id,
-      "flags.activations.value": val - 1,
+      flags: { "activations.value": val - 1 },
     });
     const turn = this.turns.findIndex(t => t._id === id);
     return this.update({ turn });
@@ -109,10 +118,28 @@ export class LancerCombat extends Combat {
 
   /**
    * Calls any Hooks registered for "LancerCombatRequestActivate".
-   * @protected
    */
-  async requestActivation(id: string) {
+  protected async requestActivation(id: string): Promise<this> {
     Hooks.callAll("LancerCombatRequestActivate", this, id);
     return this;
   }
+}
+
+interface Activations {
+  max?: number;
+  value?: number;
+}
+
+/**
+ * Typeguard for activations flag of combatants
+ */
+export function isActivations(
+  v: any // eslint-disable-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
+  // eslint hates typeguards
+): v is Activations {
+  return (
+    typeof v === "object" &&
+    (typeof v.max === "undefined" || typeof v.max === "number") &&
+    (typeof v.value === "undefined" || typeof v.value === "number")
+  );
 }

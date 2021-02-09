@@ -1,11 +1,13 @@
+import { LIConfig } from "./util.js";
+
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
- * @extends {FormApplication}
  */
-export class LIForm extends FormApplication {
+export class LIForm extends FormApplication<LIConfig['def_appearance']> {
   /** @override */
-  static get defaultOptions() {
+  static get defaultOptions(): FormApplication.Options {
+    // @ts-ignore mergeObject is hell
     return mergeObject(super.defaultOptions, {
       title: "Lancer Intiative",
       id: "lancer-initiative-settings",
@@ -15,17 +17,17 @@ export class LIForm extends FormApplication {
   }
 
   /** @override */
-  getData(_: any) {
-    if (game === null) throw "Game not initialized";
+  getData(): LIConfig['def_appearance'] {
+    const LI = CONFIG.LancerInitiative as LIConfig;
     return mergeObject(
-      CONFIG.LancerInitiative.def_appearance,
-      game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
+      LI.def_appearance,
+      game.settings.get(LI.module, "appearance") as LIConfig['def_appearance'],
       { inplace: false }
     );
   }
 
   /** @override */
-  activateListeners(html: JQuery<HTMLElement>) {
+  activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
 
     //update the preview icon
@@ -52,12 +54,12 @@ export class LIForm extends FormApplication {
   }
 
   /** @override */
-  async _updateObject(_: Event, data: any) {
-    if (game === null) throw "Game not initialized";
+  async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
+    const LI = CONFIG.LancerInitiative as LIConfig;
     game.settings.set(
-      CONFIG.LancerInitiative.module,
+      LI.module,
       "appearance",
-      diffObject(CONFIG.LancerInitiative.def_appearance, data, { inner: true })
+      diffObject(LI.def_appearance, data, { inner: true })
     );
   }
 
@@ -65,9 +67,9 @@ export class LIForm extends FormApplication {
    * Sets all settings handled by the form to undefined in order to revert to
    * their default values.
    */
-  async resetSettings() {
-    if (game === null) throw "Game not initialized";
-    await game.settings.set(CONFIG.LancerInitiative.module, "appearance", {});
+  async resetSettings(): Promise<this> {
+    const LI = CONFIG.LancerInitiative as LIConfig;
+    await game.settings.set(LI.module, "appearance", {});
     return this.render();
   }
 }

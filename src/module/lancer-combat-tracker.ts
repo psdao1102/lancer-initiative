@@ -1,9 +1,12 @@
+import { LancerCombat, isActivations } from "./lancer-combat.js";
+import { LIConfig } from "./util.js";
+
 /**
  * Overrides the display of the combat and turn order tab to add activation
  * buttons and either move or remove the initiative button
- * @extends {CombatTracker}
  */
 export class LancerCombatTracker extends CombatTracker {
+  combat!: LancerCombat;
   /**
    * Intercepts the data being sent to the combat tracker window and
    * optionally sorts the the turn data that gets displayed. This allows the
@@ -11,12 +14,11 @@ export class LancerCombatTracker extends CombatTracker {
    * updateCombat events being eaten.
    * @override
    */
-  async getData(options: any) {
-    if (game === null) throw "Game not set up";
+  async getData(options: Application.RenderOptions): Promise<unknown> {
+    const LI = CONFIG.LancerInitiative as LIConfig;
     const data = await (super.getData(options) as Promise<any>);
-    const sort = game.settings.get(CONFIG.LancerInitiative.module, "sort");
+    const sort = game.settings.get(LI.module, "sort") as boolean;
     if (sort) {
-      // @ts-ignore getData returns a real object
       data.turns.sort(function (a: any, b: any) {
         const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
         const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
@@ -34,20 +36,14 @@ export class LancerCombatTracker extends CombatTracker {
    * handlers.
    * @override
    */
-  async _renderInner(data: any, options: any) {
-    if (!game) throw "Game not initialized";
+  protected async _renderInner(data: any, options: Application.RenderOptions): Promise<JQuery<HTMLElement>> {
+    const LI = CONFIG.LancerInitiative as LIConfig;
     const html = await super._renderInner(data, options);
-    const settings = mergeObject(
-      CONFIG.LancerInitiative.def_appearance,
-      game.settings.get(CONFIG.LancerInitiative.module, "appearance"),
-      { inplace: false }
-    );
-    settings.enable_initiative = game.settings.get(
-      CONFIG.LancerInitiative.module,
-      "enable-initiative"
-    );
-    html.find(".combatant").each((_: number , li: HTMLElement) => {
-      if (!game) throw "Game not initialized";
+    const settings = mergeObject(LI.def_appearance, game.settings.get(LI.module, "appearance"), {
+      inplace: false,
+    });
+    settings.enable_initiative = game.settings.get(LI.module, "enable-initiative");
+    html.find(".combatant").each((_: number, li: HTMLElement) => {
       const combatantId = $(li).data("combatantId");
       const combatant = data.combat.getCombatant(combatantId);
 
@@ -105,36 +101,39 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   /** @override */
-  activateListeners(html: JQuery<HTMLElement>) {
+  activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
     html.find(".token-initiative").on("click", this._onActivateCombatant.bind(this));
   }
 
   /**
    * Activate the selected combatant
-   * @protected
    */
-  async _onActivateCombatant(event: any) {
+  protected async _onActivateCombatant(event: JQuery.MouseEventBase): Promise<void> {
     event.preventDefault();
     event.stopPropagation();
     const btn = event.currentTarget;
-    const id = btn.closest(".combatant").dataset.combatantId;
+    const id = btn.closest(".combatant").dataset.combatantId as string;
     await this.combat.activateCombatant(id);
   }
 
   /** @override */
-  _getEntryContextOptions() {
-    if (!game) throw "Game not initialized";
+  protected _getEntryContextOptions(): {
+    name: string;
+    icon: string;
+    callback: (li: JQuery<HTMLElement>) => void;
+  }[] {
     const m = [
       {
         name: game.i18n.localize("LANCERINITIATIVE.AddActivation"),
         icon: '<i class="fas fa-plus"></i>',
         callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          const max = combatant.flags.activations.max + 1;
+          if (!isActivations(combatant.flags.activations)) throw new Error();
+          const max = combatant.flags.activations.max ?? 0 + 1;
           await this.combat.updateCombatant({
             _id: combatant._id,
-            "flags.activations.max": max,
+            flags: { "activations.max": max },
           });
         },
       },
@@ -143,12 +142,12 @@ export class LancerCombatTracker extends CombatTracker {
         icon: '<i class="fas fa-minus"></i>',
         callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          const max = combatant.flags.activations.max - 1;
-          const cur = Math.clamped(combatant.flags.activations.value, 0, max > 0 ? max : 1);
+          if (!isActivations(combatant.flags.activations)) throw new Error();
+          const max = combatant.flags.activations.max ?? 0 - 1;
+          const cur = Math.clamped(combatant.flags.activations.value ?? 0, 0, max > 0 ? max : 1);
           await this.combat.updateCombatant({
             _id: combatant._id,
-            "flags.activations.max": max > 0 ? max : 1,
-            "flags.activations.value": cur,
+            flags: { "activations.max": max > 0 ? max : 1, "activations.value": cur },
           });
         },
       },
@@ -157,16 +156,28 @@ export class LancerCombatTracker extends CombatTracker {
         icon: '<i class="fas fa-undo"></i>',
         callback: (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          const max = combatant.flags.activations.max;
-          const cur = Math.clamped(combatant.flags.activations.value + 1, 0, max > 0 ? max : 1);
+          if (!isActivations(combatant.flags.activations)) throw new Error();
+          const max = combatant.flags.activations.max ?? 0;
+          const cur = Math.clamped(
+            combatant.flags.activations.value ?? 0 + 1,
+            0,
+            max > 0 ? max : 1
+          );
           this.combat.updateCombatant({
             _id: combatant._id,
-            "flags.activations.value": cur,
+            flags: { "activations.value": cur },
           });
         },
       },
     ];
-    m.push(...super._getEntryContextOptions().filter((i: any) => i.name !== "COMBAT.CombatantReroll"));
+    m.push(
+      ...super
+        ._getEntryContextOptions()
+        .filter(
+          (i: { name: string; icon: string; callback: (li: JQuery<HTMLElement>) => void }) =>
+            i.name !== "COMBAT.CombatantReroll"
+        )
+    );
     return m;
   }
 }
