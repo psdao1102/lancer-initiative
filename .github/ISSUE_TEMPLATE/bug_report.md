@@ -42,3 +42,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+
+**Additional contact info**
+
+Discord username, email, or other places that you're okay with getting contacted for more information. **This is optional.**
