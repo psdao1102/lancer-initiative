@@ -11,6 +11,7 @@ export class LancerCombat extends Combat {
     players: User[],
     settings: unknown = {}
   ): Combat.Combatant {
+    super._prepareCombatant(c, scene, players, settings);
     c = super._prepareCombatant(c, scene, players, settings);
 
     // Populate activation data
@@ -125,7 +126,10 @@ export class LancerCombat extends Combat {
   }
 }
 
-interface Activations {
+/**
+ * Interface for the activations object
+ */
+export interface Activations {
   max?: number;
   value?: number;
 }

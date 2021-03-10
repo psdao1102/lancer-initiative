@@ -5,11 +5,17 @@
     "module": "es6",
     "sourceMap": true,
     "lib": ["ES6", "ES2017", "DOM"],
-    "types": ["foundry-vtt-types"],
+    "types": ["@league-of-foundry-developers/foundry-vtt-types"],
+    "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": true,
     "importHelpers": true,
-    "declaration": true
+    "declaration": true,
+    "plugins": [
+      {
+        "name": "typescript-eslint-language-service"
+      }
+    ]
   },
   "include": [
       "src/**/*.ts"

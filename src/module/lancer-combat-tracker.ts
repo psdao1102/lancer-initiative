@@ -1,5 +1,4 @@
 import { LancerCombat, isActivations } from "./lancer-combat.js";
-import { LIConfig } from "./util.js";
 
 /**
  * Overrides the display of the combat and turn order tab to add activation
@@ -14,9 +13,9 @@ export class LancerCombatTracker extends CombatTracker {
    * updateCombat events being eaten.
    * @override
    */
-  async getData(options: Application.RenderOptions): Promise<unknown> {
-    const LI = CONFIG.LancerInitiative as LIConfig;
-    const data = await (super.getData(options) as Promise<any>);
+  async getData(options: Application.RenderOptions): Promise<CombatTracker.Data> {
+    const LI = (this.constructor as typeof LancerCombatTracker).config;
+    const data = await super.getData(options);
     const sort = game.settings.get(LI.module, "sort") as boolean;
     if (sort) {
       data.turns.sort(function (a: any, b: any) {
@@ -36,16 +35,19 @@ export class LancerCombatTracker extends CombatTracker {
    * handlers.
    * @override
    */
-  protected async _renderInner(data: any, options: Application.RenderOptions): Promise<JQuery<HTMLElement>> {
-    const LI = CONFIG.LancerInitiative as LIConfig;
-    const html = await super._renderInner(data, options);
-    const settings = mergeObject(LI.def_appearance, game.settings.get(LI.module, "appearance"), {
-      inplace: false,
-    });
-    settings.enable_initiative = game.settings.get(LI.module, "enable-initiative");
-    html.find(".combatant").each((_: number, li: HTMLElement) => {
-      const combatantId = $(li).data("combatantId");
-      const combatant = data.combat.getCombatant(combatantId);
+  protected async _renderInner(data: CombatTracker.Data): Promise<JQuery<HTMLElement>> {
+    const LI = (this.constructor as typeof LancerCombatTracker).config;
+    const html = await super._renderInner(data);
+    const settings = {
+      ...LI.def_appearance,
+      ...(game.settings.get(LI.module, "appearance") as typeof LI["def_appearance"]),
+      enable_initiative: game.settings.get(LI.module, "enable-initiative") as boolean,
+    };
+    html.find(".combatant").each(function () {
+      console.log($(this));
+      const combatantId = $(this).data("combatantId") as string;
+      const combatant = data.combat!.getCombatant(combatantId);
+      if (!isActivations(combatant.flags.activations)) return;
 
       // Retrieve settings
       let color = "";
@@ -62,12 +64,12 @@ export class LancerCombatTracker extends CombatTracker {
         default:
       }
 
-      $(li).css("border-color", color);
+      $(this).css("border-color", color);
 
       // render icons
-      const n = combatant.flags.activations.value;
-      const d = combatant.flags.activations.max - n;
-      $(li)
+      const n = combatant.flags.activations.value ?? 0;
+      const d = (combatant.flags.activations.max ?? 1) - n;
+      $(this)
         .find(".token-initiative")
         .attr("data-control", "activate")
         .html(
@@ -85,7 +87,7 @@ export class LancerCombatTracker extends CombatTracker {
         combatant.initiative === null
       ) {
         const init_button = document.createElement("a");
-        $(li).find(".combatant-controls").prepend($(init_button));
+        $(this).find(".combatant-controls").prepend($(init_button));
         $(init_button)
           .addClass("combatant-control")
           .attr("data-control", "rollInitiative")
@@ -93,7 +95,7 @@ export class LancerCombatTracker extends CombatTracker {
           .html('<i class="fas fa-dice-d20"></i>');
       } else if (settings.enable_initiative && combatant.initiative !== null) {
         const init_val = document.createElement("span");
-        $(li).find(".combatant-controls").prepend($(init_val));
+        $(this).find(".combatant-controls").prepend($(init_val));
         $(init_val).addClass("initiative").css("flex", "0 0 1.5em").text(combatant.initiative);
       }
     });
@@ -109,28 +111,28 @@ export class LancerCombatTracker extends CombatTracker {
   /**
    * Activate the selected combatant
    */
-  protected async _onActivateCombatant(event: JQuery.MouseEventBase): Promise<void> {
+  protected async _onActivateCombatant(
+    event: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
+  ): Promise<void> {
     event.preventDefault();
     event.stopPropagation();
     const btn = event.currentTarget;
-    const id = btn.closest(".combatant").dataset.combatantId as string;
+    const id = btn.closest<HTMLElement>(".combatant")?.dataset.combatantId;
+    if (!id) return;
     await this.combat.activateCombatant(id);
   }
 
   /** @override */
-  protected _getEntryContextOptions(): {
-    name: string;
-    icon: string;
-    callback: (li: JQuery<HTMLElement>) => void;
-  }[] {
+  protected _getEntryContextOptions(): ContextMenu.Item[] {
     const m = [
       {
         name: game.i18n.localize("LANCERINITIATIVE.AddActivation"),
         icon: '<i class="fas fa-plus"></i>',
         callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          if (!isActivations(combatant.flags.activations)) throw new Error();
-          const max = combatant.flags.activations.max ?? 0 + 1;
+          if (!isActivations(combatant.flags.activations))
+            throw new Error("Assertion failed for combatant.flags.activations");
+          const max = (combatant.flags.activations.max ?? 0) + 1;
           await this.combat.updateCombatant({
             _id: combatant._id,
             flags: { "activations.max": max },
@@ -142,8 +144,9 @@ export class LancerCombatTracker extends CombatTracker {
         icon: '<i class="fas fa-minus"></i>',
         callback: async (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          if (!isActivations(combatant.flags.activations)) throw new Error();
-          const max = combatant.flags.activations.max ?? 0 - 1;
+          if (!isActivations(combatant.flags.activations))
+            throw new Error("Assertion failed for combatant.flags.activations");
+          const max = (combatant.flags.activations.max ?? 0) - 1;
           const cur = Math.clamped(combatant.flags.activations.value ?? 0, 0, max > 0 ? max : 1);
           await this.combat.updateCombatant({
             _id: combatant._id,
@@ -156,7 +159,8 @@ export class LancerCombatTracker extends CombatTracker {
         icon: '<i class="fas fa-undo"></i>',
         callback: (li: JQuery<HTMLElement>) => {
           const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          if (!isActivations(combatant.flags.activations)) throw new Error();
+          if (!isActivations(combatant.flags.activations))
+            throw new Error("Assertion failed for combatant.flags.activations");
           const max = combatant.flags.activations.max ?? 0;
           const cur = Math.clamped(
             combatant.flags.activations.value ?? 0 + 1,
@@ -170,14 +174,34 @@ export class LancerCombatTracker extends CombatTracker {
         },
       },
     ];
-    m.push(
-      ...super
-        ._getEntryContextOptions()
-        .filter(
-          (i: { name: string; icon: string; callback: (li: JQuery<HTMLElement>) => void }) =>
-            i.name !== "COMBAT.CombatantReroll"
-        )
-    );
+    m.push(...super._getEntryContextOptions().filter(i => i.name !== "COMBAT.CombatantReroll"));
     return m;
   }
+
+  /**
+   * Holds the default configuration of the module
+   */
+  static config: LIConfig = {
+    module: "lancer-initiative",
+    def_appearance: {
+      icon: "fas fa-chevron-circle-right",
+      icon_size: 1.5,
+      player_color: "#44abe0",
+      neutral_color: "#146464",
+      enemy_color: "#d98f30",
+      done_color: "#444444",
+    },
+  };
+}
+
+interface LIConfig {
+  module: string;
+  def_appearance: {
+    icon: string;
+    icon_size: number;
+    player_color: string;
+    neutral_color: string;
+    enemy_color: string;
+    done_color: string;
+  };
 }

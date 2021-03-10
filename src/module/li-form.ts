@@ -1,29 +1,29 @@
-import { LIConfig } from "./util.js";
+import { LancerCombatTracker } from "./lancer-combat-tracker.js";
+type Appearance = typeof LancerCombatTracker.config['def_appearance']
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class LIForm extends FormApplication<LIConfig['def_appearance']> {
+export class LIForm extends FormApplication<Appearance> {
   /** @override */
   static get defaultOptions(): FormApplication.Options {
-    // @ts-ignore mergeObject is hell
-    return mergeObject(super.defaultOptions, {
+    return {
+      ...super.defaultOptions,
       title: "Lancer Intiative",
       id: "lancer-initiative-settings",
       template: "modules/lancer-initiative/templates/lancer-initiative-settings.html",
       width: 350,
-    });
+    }
   }
 
   /** @override */
-  getData(): LIConfig['def_appearance'] {
-    const LI = CONFIG.LancerInitiative as LIConfig;
-    return mergeObject(
-      LI.def_appearance,
-      game.settings.get(LI.module, "appearance") as LIConfig['def_appearance'],
-      { inplace: false }
-    );
+  getData(): Appearance {
+    const LI = LancerCombatTracker.config;
+    return {
+      ...LI.def_appearance,
+      ...game.settings.get(LI.module, "appearance") as Appearance,
+    };
   }
 
   /** @override */
@@ -55,7 +55,7 @@ export class LIForm extends FormApplication<LIConfig['def_appearance']> {
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const LI = CONFIG.LancerInitiative as LIConfig;
+    const LI = LancerCombatTracker.config;
     game.settings.set(
       LI.module,
       "appearance",
@@ -67,8 +67,8 @@ export class LIForm extends FormApplication<LIConfig['def_appearance']> {
    * Sets all settings handled by the form to undefined in order to revert to
    * their default values.
    */
-  async resetSettings(): Promise<this> {
-    const LI = CONFIG.LancerInitiative as LIConfig;
+  async resetSettings(): Promise<unknown> {
+    const LI = LancerCombatTracker.config;
     await game.settings.set(LI.module, "appearance", {});
     return this.render();
   }
