@@ -1,12 +1,31 @@
+:root {
+  --lancer-initiative-icon-size: 1rem;
+  --lancer-initiative-player-color: #000000;
+  --lancer-initiative-neutral-color: #000000;
+  --lancer-initiative-enemy-color: #000000;
+  --lancer-initiative-done-color: #000000;
+}
+
 li.combatant {
   padding-right: 0.5em;
   border: 3px;
   border-radius: 5px;
-  border-color: #444444;
   border-style: solid !important;
   border-top: 0px !important;
   border-bottom: 0px !important;
   margin: 4px;
+}
+
+li.combatant.player {
+  border-color: var(--lancer-initiative-player-color) !important;
+}
+
+li.combatant.neutral {
+  border-color: var(--lancer-initiative-neutral-color) !important;
+}
+
+li.combatant.enemy {
+  border-color: var(--lancer-initiative-enemy-color) !important;
 }
 
 #combat #combat-tracker .combatant .token-initiative {
@@ -15,6 +34,26 @@ li.combatant {
   display: flex;
   position: relative;
   flex: 0 0 auto;
+}
+
+#combat #combat-tracker .combatant .token-initiative i,
+#combat #combat-tracker .combatant .token-initiative a {
+  font-size: var(--lancer-initiative-icon-size);
+}
+#combat #combat-tracker .combatant .token-initiative i.done {
+  color: var(--lancer-initiative-done-color);
+}
+
+#combat #combat-tracker .combatant.player .token-initiative a {
+  color: var(--lancer-initiative-player-color);
+}
+
+#combat #combat-tracker .combatant.neutral .token-initiative a {
+  color: var(--lancer-initiative-neutral-color);
+}
+
+#combat #combat-tracker .combatant.enemy .token-initiative a {
+  color: var(--lancer-initiative-enemy-color);
 }
 
 #combat #combat-tracker li.combatant.turn-done {
@@ -28,8 +67,8 @@ li.combatant {
 }
 
 #lancer-initiative-settings input[type="color"] {
-    flex: 0 0 3rem;
-    cursor: pointer;
+  flex: 0 0 3rem;
+  cursor: pointer;
 }
 
 #lancer-initiative-settings #preview-combat {

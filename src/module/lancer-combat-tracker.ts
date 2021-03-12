@@ -5,7 +5,7 @@ import { LancerCombat, isActivations } from "./lancer-combat.js";
  * buttons and either move or remove the initiative button
  */
 export class LancerCombatTracker extends CombatTracker {
-  combat!: LancerCombat;
+  combat!: LancerCombat | null;
   /**
    * Intercepts the data being sent to the combat tracker window and
    * optionally sorts the the turn data that gets displayed. This allows the
@@ -13,20 +13,37 @@ export class LancerCombatTracker extends CombatTracker {
    * updateCombat events being eaten.
    * @override
    */
-  async getData(options: Application.RenderOptions): Promise<CombatTracker.Data> {
-    const LI = (this.constructor as typeof LancerCombatTracker).config;
-    const data = await super.getData(options);
-    const sort = game.settings.get(LI.module, "sort") as boolean;
+  async getData(options?: Application.RenderOptions): Promise<LancerCombatTracker.Data> {
+    const config = (this.constructor as typeof LancerCombatTracker).config;
+    const appearance = (this.constructor as typeof LancerCombatTracker).appearance;
+    const data = (await super.getData(options)) as LancerCombatTracker.Data;
+    const sort = game.settings.get(config.module, "sort") as boolean;
+    const disp: Record<number, string> = {
+      [-1]: "enemy",
+      [0]: "neutral",
+      [1]: "player",
+    };
     if (sort) {
-      data.turns.sort(function (a: any, b: any) {
+      data.turns.sort(function (a, b) {
         const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
         const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
         if (ba - aa !== 0) return ba - aa;
-        const ad = a.flags.activations.value === 0 ? 1 : 0;
-        const bd = b.flags.activations.value === 0 ? 1 : 0;
+        const ad = a.pending === 0 ? 1 : 0;
+        const bd = b.pending === 0 ? 1 : 0;
         return ad - bd;
       });
     }
+    data.turns = data.turns.map(t => {
+      if (!isActivations(t.flags.activations))
+        throw new Error("Assertion failed for t.flags.activations");
+      return {
+        ...t,
+        css: t.css + " " + disp[t.token?.disposition ?? 0],
+        pending: t.flags.activations.value ?? 0,
+        finished: (t.flags.activations.max ?? 1) - (t.flags.activations.value ?? 0),
+      };
+    });
+    data.icon_class = appearance.icon;
     return data;
   }
 
@@ -35,36 +52,18 @@ export class LancerCombatTracker extends CombatTracker {
    * handlers.
    * @override
    */
-  protected async _renderInner(data: CombatTracker.Data): Promise<JQuery<HTMLElement>> {
-    const LI = (this.constructor as typeof LancerCombatTracker).config;
+  protected async _renderInner(data: LancerCombatTracker.Data): Promise<JQuery<HTMLElement>> {
+    const config = (this.constructor as typeof LancerCombatTracker).config;
+    const appearance = (this.constructor as typeof LancerCombatTracker).appearance;
     const html = await super._renderInner(data);
     const settings = {
-      ...LI.def_appearance,
-      ...(game.settings.get(LI.module, "appearance") as typeof LI["def_appearance"]),
-      enable_initiative: game.settings.get(LI.module, "enable-initiative") as boolean,
+      icon: appearance.icon,
+      enable_initiative: game.settings.get(config.module, "enable-initiative") as boolean,
     };
-    html.find(".combatant").each(function () {
-      console.log($(this));
+    html.find(".combatant").each(function (): void {
       const combatantId = $(this).data("combatantId") as string;
       const combatant = data.combat!.getCombatant(combatantId);
       if (!isActivations(combatant.flags.activations)) return;
-
-      // Retrieve settings
-      let color = "";
-      switch (combatant.token?.disposition) {
-        case 1: // Player
-          color = settings.player_color;
-          break;
-        case 0: // Neutral
-          color = settings.neutral_color;
-          break;
-        case -1: // Hostile
-          color = settings.enemy_color;
-          break;
-        default:
-      }
-
-      $(this).css("border-color", color);
 
       // render icons
       const n = combatant.flags.activations.value ?? 0;
@@ -73,12 +72,8 @@ export class LancerCombatTracker extends CombatTracker {
         .find(".token-initiative")
         .attr("data-control", "activate")
         .html(
-          `<a class="${settings.icon}"
-            style="color: ${color}; font-size: ${settings.icon_size}rem"
-            ></a>`.repeat(n) +
-            `<i class="${settings.icon}"
-              style="color: ${settings.done_color}; font-size: ${settings.icon_size}rem"
-              ></i>`.repeat(d)
+          `<a class="${settings.icon}"></a>`.repeat(n) +
+            `<i class="${settings.icon} done"></i>`.repeat(d)
         );
 
       if (
@@ -119,63 +114,73 @@ export class LancerCombatTracker extends CombatTracker {
     const btn = event.currentTarget;
     const id = btn.closest<HTMLElement>(".combatant")?.dataset.combatantId;
     if (!id) return;
-    await this.combat.activateCombatant(id);
+    await this.combat!.activateCombatant(id);
+  }
+
+  protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {
+    const combatant = this.combat!.getCombatant(li.data("combatant-id"));
+    if (!isActivations(combatant.flags.activations))
+      throw new Error("Assertion failed for combatant.flags.activations");
+    const max = (combatant.flags.activations.max ?? 0) + 1;
+    await this.combat!.updateCombatant({
+      _id: combatant._id,
+      flags: { "activations.max": max },
+    });
+  }
+
+  protected async _onRemoveActivation(li: JQuery<HTMLElement>): Promise<void> {
+    const combatant = this.combat!.getCombatant(li.data("combatant-id"));
+    if (!isActivations(combatant.flags.activations))
+      throw new Error("Assertion failed for combatant.flags.activations");
+    const max = (combatant.flags.activations.max ?? 0) - 1;
+    const cur = Math.clamped(combatant.flags.activations.value ?? 0, 0, max > 0 ? max : 1);
+    await this.combat!.updateCombatant({
+      _id: combatant._id,
+      flags: { "activations.max": max > 0 ? max : 1, "activations.value": cur },
+    });
+  }
+
+  protected async _onUndoActivation(li: JQuery<HTMLElement>): Promise<void> {
+    const combatant = this.combat!.getCombatant(li.data("combatant-id"));
+    if (!isActivations(combatant.flags.activations))
+      throw new Error("Assertion failed for combatant.flags.activations");
+    const max = combatant.flags.activations.max ?? 0;
+    const cur = Math.clamped((combatant.flags.activations.value ?? 0) + 1, 0, max > 0 ? max : 1);
+    await this.combat!.updateCombatant({
+      _id: combatant._id,
+      flags: { "activations.value": cur },
+    });
   }
 
   /** @override */
   protected _getEntryContextOptions(): ContextMenu.Item[] {
-    const m = [
+    const m: ContextMenu.Item[] = [
       {
         name: game.i18n.localize("LANCERINITIATIVE.AddActivation"),
         icon: '<i class="fas fa-plus"></i>',
-        callback: async (li: JQuery<HTMLElement>) => {
-          const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          if (!isActivations(combatant.flags.activations))
-            throw new Error("Assertion failed for combatant.flags.activations");
-          const max = (combatant.flags.activations.max ?? 0) + 1;
-          await this.combat.updateCombatant({
-            _id: combatant._id,
-            flags: { "activations.max": max },
-          });
-        },
+        callback: this._onAddActivation.bind(this),
       },
       {
         name: game.i18n.localize("LANCERINITIATIVE.RemoveActivation"),
         icon: '<i class="fas fa-minus"></i>',
-        callback: async (li: JQuery<HTMLElement>) => {
-          const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          if (!isActivations(combatant.flags.activations))
-            throw new Error("Assertion failed for combatant.flags.activations");
-          const max = (combatant.flags.activations.max ?? 0) - 1;
-          const cur = Math.clamped(combatant.flags.activations.value ?? 0, 0, max > 0 ? max : 1);
-          await this.combat.updateCombatant({
-            _id: combatant._id,
-            flags: { "activations.max": max > 0 ? max : 1, "activations.value": cur },
-          });
-        },
+        callback: this._onRemoveActivation.bind(this),
       },
       {
         name: game.i18n.localize("LANCERINITIATIVE.UndoActivation"),
         icon: '<i class="fas fa-undo"></i>',
-        callback: (li: JQuery<HTMLElement>) => {
-          const combatant = this.combat.getCombatant(li.data("combatant-id"));
-          if (!isActivations(combatant.flags.activations))
-            throw new Error("Assertion failed for combatant.flags.activations");
-          const max = combatant.flags.activations.max ?? 0;
-          const cur = Math.clamped(
-            combatant.flags.activations.value ?? 0 + 1,
-            0,
-            max > 0 ? max : 1
-          );
-          this.combat.updateCombatant({
-            _id: combatant._id,
-            flags: { "activations.value": cur },
-          });
-        },
+        callback: this._onUndoActivation.bind(this),
       },
     ];
     m.push(...super._getEntryContextOptions().filter(i => i.name !== "COMBAT.CombatantReroll"));
     return m;
+  }
+
+  static get appearance(): LIConfig['def_appearance'] {
+    const config = (this.prototype.constructor as typeof LancerCombatTracker).config;
+    return {
+      ...config.def_appearance,
+      ...(game.settings.get(config.module, "appearance") as Partial<LIConfig["def_appearance"]>),
+    };
   }
 
   /**
@@ -204,4 +209,8 @@ interface LIConfig {
     enemy_color: string;
     done_color: string;
   };
+}
+namespace LancerCombatTracker {
+  type Turn = CombatTracker.Turn & { pending: number; finished: number };
+  export type Data = CombatTracker.Data & { icon_class: string; turns: Turn[] };
 }
