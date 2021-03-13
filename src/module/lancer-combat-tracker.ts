@@ -23,16 +23,6 @@ export class LancerCombatTracker extends CombatTracker {
       [0]: "neutral",
       [1]: "player",
     };
-    if (sort) {
-      data.turns.sort(function (a, b) {
-        const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
-        const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
-        if (ba - aa !== 0) return ba - aa;
-        const ad = a.pending === 0 ? 1 : 0;
-        const bd = b.pending === 0 ? 1 : 0;
-        return ad - bd;
-      });
-    }
     data.turns = data.turns.map(t => {
       if (!isActivations(t.flags.activations))
         throw new Error("Assertion failed for t.flags.activations");
@@ -43,6 +33,16 @@ export class LancerCombatTracker extends CombatTracker {
         finished: (t.flags.activations.max ?? 1) - (t.flags.activations.value ?? 0),
       };
     });
+    if (sort) {
+      data.turns.sort(function (a: LancerCombatTracker.Turn, b: LancerCombatTracker.Turn) {
+        const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
+        const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
+        if (ba - aa !== 0) return ba - aa;
+        const ad = a.pending === 0 ? 1 : 0;
+        const bd = b.pending === 0 ? 1 : 0;
+        return ad - bd;
+      });
+    }
     data.icon_class = appearance.icon;
     return data;
   }
@@ -175,7 +175,7 @@ export class LancerCombatTracker extends CombatTracker {
     return m;
   }
 
-  static get appearance(): LIConfig['def_appearance'] {
+  static get appearance(): LIConfig["def_appearance"] {
     const config = (this.prototype.constructor as typeof LancerCombatTracker).config;
     return {
       ...config.def_appearance,
@@ -211,6 +211,6 @@ interface LIConfig {
   };
 }
 namespace LancerCombatTracker {
-  type Turn = CombatTracker.Turn & { pending: number; finished: number };
+  export type Turn = CombatTracker.Turn & { pending: number; finished: number };
   export type Data = CombatTracker.Data & { icon_class: string; turns: Turn[] };
 }
