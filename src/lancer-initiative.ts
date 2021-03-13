@@ -76,6 +76,7 @@ function setAppearance(val: Partial<typeof LancerCombatTracker['appearance']>): 
     "--lancer-initiative-done-color",
     val.done_color ?? defaults.done_color
   );
+  game.combats?.render();
 }
 
 Hooks.once("init", registerSettings);
