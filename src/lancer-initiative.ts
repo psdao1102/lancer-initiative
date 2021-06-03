@@ -2,9 +2,50 @@ import { LancerCombat } from "./module/lancer-combat.js";
 import { LancerCombatTracker } from "./module/lancer-combat-tracker.js";
 import { LIForm } from "./module/li-form.js";
 
+type Appearance = typeof LancerCombatTracker["appearance"];
+const module = "lancer-initiative";
+
+function migrateSettings(): void {
+  if (<number>game.settings.get(module, "combat-tracker-migrated-settings") >= 1) return;
+
+  console.log("lancer-initiative | Migrating Settings");
+
+  game.settings.register(module, "appearance", {
+    scope: "world",
+    config: false,
+    type: Object,
+  });
+  game.settings.register(module, "sort", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+  game.settings.register(module, "enable-initiative", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.set(
+    module,
+    "combat-tracker-appearance",
+    <Appearance>game.settings.get(module, "appearance")
+  );
+  game.settings.set(module, "combat-tracker-sort", <boolean>game.settings.get(module, "sort"));
+  game.settings.set(
+    module,
+    "combat-tracker-enable-initiative",
+    <boolean>game.settings.get(module, "enable-initiative")
+  );
+  game.settings.set(module, "combat-tracker-migrated-settings", 1);
+}
+
 function registerSettings(): void {
   console.log("lancer-initiative | Initializing Lancer Initiative Module");
   const config = LancerCombatTracker.config;
+  config.module = module;
 
   switch (game.system.id) {
     case "lancer":
@@ -14,19 +55,19 @@ function registerSettings(): void {
     default:
   }
 
-  game.settings.registerMenu(config.module, "lancerInitiative", {
+  game.settings.registerMenu(module, "lancerInitiative", {
     name: game.i18n.localize("LANCERINITIATIVE.IconSettingsMenu"),
     label: game.i18n.localize("LANCERINITIATIVE.IconSettingsMenu"),
     type: LIForm,
     restricted: true,
   });
-  game.settings.register(config.module, "appearance", {
+  game.settings.register(module, "combat-tracker-appearance", {
     scope: "world",
     config: false,
     type: Object,
     onChange: setAppearance,
   });
-  game.settings.register(config.module, "sort", {
+  game.settings.register(module, "combat-tracker-sort", {
     name: game.i18n.localize("LANCERINITIATIVE.SortTracker"),
     hint: game.i18n.localize("LANCERINITIATIVE.SortTrackerDesc"),
     scope: "world",
@@ -34,13 +75,19 @@ function registerSettings(): void {
     type: Boolean,
     default: false,
   });
-  game.settings.register(config.module, "enable-initiative", {
+  game.settings.register(module, "combat-tracker-enable-initiative", {
     name: game.i18n.localize("LANCERINITIATIVE.EnableInitiative"),
     hint: game.i18n.localize("LANCERINITIATIVE.EnableInitiativeDesc"),
     scope: "world",
     config: !!CONFIG.Combat.initiative.formula,
     type: Boolean,
     default: false,
+  });
+  game.settings.register(module, "combat-tracker-migrated-settings", {
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0,
   });
 
   // Override classes
@@ -54,29 +101,30 @@ function registerSettings(): void {
   setAppearance(LancerCombatTracker.appearance);
 }
 
-function setAppearance(val: Partial<typeof LancerCombatTracker['appearance']>): void {
+function setAppearance(val: Partial<Appearance>): void {
   const defaults = LancerCombatTracker.config.def_appearance;
   document.documentElement.style.setProperty(
     "--lancer-initiative-icon-size",
-    `${val.icon_size ?? defaults.icon_size}rem`
+    `${val?.icon_size ?? defaults.icon_size}rem`
   );
   document.documentElement.style.setProperty(
     "--lancer-initiative-player-color",
-    val.player_color ?? defaults.player_color
+    val?.player_color ?? defaults.player_color
   );
   document.documentElement.style.setProperty(
     "--lancer-initiative-neutral-color",
-    val.neutral_color ?? defaults.neutral_color
+    val?.neutral_color ?? defaults.neutral_color
   );
   document.documentElement.style.setProperty(
     "--lancer-initiative-enemy-color",
-    val.enemy_color ?? defaults.enemy_color
+    val?.enemy_color ?? defaults.enemy_color
   );
   document.documentElement.style.setProperty(
     "--lancer-initiative-done-color",
-    val.done_color ?? defaults.done_color
+    val?.done_color ?? defaults.done_color
   );
   game.combats?.render();
 }
 
 Hooks.once("init", registerSettings);
+Hooks.once("setup", migrateSettings);

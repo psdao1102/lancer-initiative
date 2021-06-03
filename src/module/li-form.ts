@@ -5,7 +5,7 @@ type Appearance = typeof LancerCombatTracker.appearance
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class LIForm extends FormApplication<Appearance> {
+export class LIForm extends FormApplication<FormApplication.Options, Appearance> {
   /** @override */
   static get defaultOptions(): FormApplication.Options {
     return {
@@ -54,7 +54,7 @@ export class LIForm extends FormApplication<Appearance> {
     const config = LancerCombatTracker.config;
     game.settings.set(
       config.module,
-      "appearance",
+      "combat-tracker-appearance",
       diffObject(config.def_appearance, data, { inner: true })
     );
   }
@@ -65,7 +65,7 @@ export class LIForm extends FormApplication<Appearance> {
    */
   async resetSettings(): Promise<unknown> {
     const config = LancerCombatTracker.config;
-    await game.settings.set(config.module, "appearance", {});
+    await game.settings.set(config.module, "combat-tracker-appearance", {});
     return this.render();
   }
 }

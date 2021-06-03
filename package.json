@@ -5,9 +5,9 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-2",
-    "prettier": "^2.2.1",
-    "typescript": "^4.1.3"
+    "@league-of-foundry-developers/foundry-vtt-types": "^0.7.9-6",
+    "prettier": "^2.3.0",
+    "typescript": "^4.3.2"
   },
   "scripts": {
     "prepare": "tsc",

@@ -57,16 +57,19 @@ export class LancerCombat extends Combat {
    */
   async resetActivations(): Promise<void> {
     const updates = this.combatants.map(c => {
-      if (!isActivations(c.flags.activations))
+      if (!isActivations(c.flags?.activations))
         throw new Error("Assertion failed for c.flags.activations");
       return {
         _id: c._id,
         flags: {
-          "activations.value": c.defeated ? 0 : c.flags.activations.max,
-          "activations.max": c.flags.activations.max,
+          activations: {
+            value: c.defeated ? 0 : c.flags?.activations.max ?? 0,
+            max: c.flags?.activations.max ?? 0,
+          },
         },
       };
     });
+    // @ts-ignore
     await this.updateCombatant(updates);
   }
 

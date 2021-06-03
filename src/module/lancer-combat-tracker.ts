@@ -17,7 +17,7 @@ export class LancerCombatTracker extends CombatTracker {
     const config = (this.constructor as typeof LancerCombatTracker).config;
     const appearance = (this.constructor as typeof LancerCombatTracker).appearance;
     const data = (await super.getData(options)) as LancerCombatTracker.Data;
-    const sort = game.settings.get(config.module, "sort") as boolean;
+    const sort = game.settings.get(config.module, "combat-tracker-sort") as boolean;
     const disp: Record<number, string> = {
       [-1]: "enemy",
       [0]: "neutral",
@@ -34,6 +34,7 @@ export class LancerCombatTracker extends CombatTracker {
       };
     });
     if (sort) {
+      // Not sure why these need to be annotated
       data.turns.sort(function (a: LancerCombatTracker.Turn, b: LancerCombatTracker.Turn) {
         const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
         const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
@@ -58,7 +59,7 @@ export class LancerCombatTracker extends CombatTracker {
     const html = await super._renderInner(data);
     const settings = {
       icon: appearance.icon,
-      enable_initiative: game.settings.get(config.module, "enable-initiative") as boolean,
+      enable_initiative: game.settings.get(config.module, "combat-tracker-enable-initiative") as boolean,
     };
     html.find(".combatant").each(function (): void {
       const combatantId = $(this).data("combatantId") as string;
@@ -179,7 +180,7 @@ export class LancerCombatTracker extends CombatTracker {
     const config = (this.prototype.constructor as typeof LancerCombatTracker).config;
     return {
       ...config.def_appearance,
-      ...(game.settings.get(config.module, "appearance") as Partial<LIConfig["def_appearance"]>),
+      ...(game.settings.get(config.module, "combat-tracker-appearance") as Partial<LIConfig["def_appearance"]>),
     };
   }
 
@@ -187,7 +188,7 @@ export class LancerCombatTracker extends CombatTracker {
    * Holds the default configuration of the module
    */
   static config: LIConfig = {
-    module: "lancer-initiative",
+    module: "",
     def_appearance: {
       icon: "fas fa-chevron-circle-right",
       icon_size: 1.5,
