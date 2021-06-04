@@ -10,24 +10,6 @@ function migrateSettings(): void {
 
   console.log("lancer-initiative | Migrating Settings");
 
-  game.settings.register(module, "appearance", {
-    scope: "world",
-    config: false,
-    type: Object,
-  });
-  game.settings.register(module, "sort", {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-  game.settings.register(module, "enable-initiative", {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.set(
     module,
     "combat-tracker-appearance",
@@ -90,6 +72,25 @@ function registerSettings(): void {
     default: 0,
   });
 
+  // Old settings to be migrated
+  game.settings.register(module, "appearance", {
+    scope: "world",
+    config: false,
+    type: Object,
+  });
+  game.settings.register(module, "sort", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+  game.settings.register(module, "enable-initiative", {
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false,
+  });
+
   // Override classes
   CONFIG.Combat.entityClass = LancerCombat;
   CONFIG.ui.combat = LancerCombatTracker;
@@ -127,4 +128,4 @@ function setAppearance(val: Partial<Appearance>): void {
 }
 
 Hooks.once("init", registerSettings);
-Hooks.once("setup", migrateSettings);
+Hooks.once("ready", migrateSettings);
