@@ -5,7 +5,9 @@ import { LancerCombat, isActivations } from "./lancer-combat.js";
  * buttons and either move or remove the initiative button
  */
 export class LancerCombatTracker extends CombatTracker {
+  // @ts-ignore 0.8
   combat!: LancerCombat | null;
+  viewed!: LancerCombat | null;
   /**
    * Intercepts the data being sent to the combat tracker window and
    * optionally sorts the the turn data that gets displayed. This allows the
@@ -24,13 +26,17 @@ export class LancerCombatTracker extends CombatTracker {
       [1]: "player",
     };
     data.turns = data.turns.map(t => {
-      if (!isActivations(t.flags.activations))
+      // @ts-ignore 0.8
+      const combatant = this.viewed.getEmbeddedDocument("Combatant", t.id)
+      // @ts-ignore 0.8
+      const activations: unknown = combatant.getFlag(config.module, "activations");
+      if (!isActivations(activations))
         throw new Error("Assertion failed for t.flags.activations");
       return {
         ...t,
-        css: t.css + " " + disp[t.token?.disposition ?? 0],
-        pending: t.flags.activations.value ?? 0,
-        finished: (t.flags.activations.max ?? 1) - (t.flags.activations.value ?? 0),
+        css: t.css + " " + disp[combatant.token?.data.disposition ?? 0],
+        pending: activations.value ?? 0,
+        finished: (activations.max ?? 1) - (activations.value ?? 0),
       };
     });
     if (sort) {
@@ -63,12 +69,14 @@ export class LancerCombatTracker extends CombatTracker {
     };
     html.find(".combatant").each(function (): void {
       const combatantId = $(this).data("combatantId") as string;
-      const combatant = data.combat!.getCombatant(combatantId);
-      if (!isActivations(combatant.flags.activations)) return;
+      // @ts-ignore 0.8
+      const combatant = data.combat!.getEmbeddedDocument("Combatant", combatantId);
+      const activations: unknown = combatant.getFlag(config.module, "activations");
+      if (!isActivations(activations)) return;
 
       // render icons
-      const n = combatant.flags.activations.value ?? 0;
-      const d = (combatant.flags.activations.max ?? 1) - n;
+      const n = activations.value ?? 0;
+      const d = (activations.max ?? 1) - n;
       $(this)
         .find(".token-initiative")
         .attr("data-control", "activate")
@@ -115,7 +123,7 @@ export class LancerCombatTracker extends CombatTracker {
     const btn = event.currentTarget;
     const id = btn.closest<HTMLElement>(".combatant")?.dataset.combatantId;
     if (!id) return;
-    await this.combat!.activateCombatant(id);
+    await this.viewed!.activateCombatant(id);
   }
 
   protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {

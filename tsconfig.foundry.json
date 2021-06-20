@@ -10,6 +10,7 @@
     "skipLibCheck": true
   },
   "include": [
+    "src/global.d.ts",
     "src/module/*.ts",
     "src/lancer-initiative.ts"
   ]

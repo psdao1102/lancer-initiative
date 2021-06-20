@@ -1,4 +1,4 @@
-import { LancerCombat } from "./module/lancer-combat.js";
+import { LancerCombat, LancerCombatant } from "./module/lancer-combat.js";
 import { LancerCombatTracker } from "./module/lancer-combat-tracker.js";
 import { LIForm } from "./module/li-form.js";
 
@@ -92,7 +92,11 @@ function registerSettings(): void {
   });
 
   // Override classes
-  CONFIG.Combat.entityClass = LancerCombat;
+  // @ts-ignore 0.8
+  CONFIG.Combat.documentClass = LancerCombat;
+  // @ts-ignore 0.8
+  CONFIG.Combatant.documentClass = LancerCombatant;
+  // @ts-ignore 0.8
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Call hooks for initialization of Lancer Initiative

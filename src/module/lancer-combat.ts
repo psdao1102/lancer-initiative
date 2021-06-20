@@ -1,3 +1,5 @@
+import { LancerCombatTracker } from "./lancer-combat-tracker.js";
+
 /**
  * Overrides and extends the Combat class to use an activation model instead of
  * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
@@ -5,72 +7,58 @@
  */
 export class LancerCombat extends Combat {
   /** @override */
-  _prepareCombatant(
-    c: Combat.Combatant,
-    scene: Scene,
-    players: User[],
-    settings: unknown = {}
-  ): Combat.Combatant {
-    super._prepareCombatant(c, scene, players, settings);
-    c = super._prepareCombatant(c, scene, players, settings);
-
-    // Populate activation data
-    c.flags.activations = c.flags.activations ?? {};
-    if (!isActivations(c.flags.activations))
-      throw new Error("Assertion failed for c.flags.activations");
-    c.flags.activations.max = c.flags.activations.max ?? c.actor?.data.data?.activations ?? 1;
-    c.flags.activations.value = c.flags.activations.value ?? 0;
-
-    c.flags.dummy = c.flags.dummy ?? false;
-    // Set an arbitrary initiative so that attempting to roll doesn't raise an
-    // exception for the dummy.
-    if (c.flags.dummy) {
-      c.initiative = -1;
-      c.visible = false;
-    }
-
-    return c;
-  }
-
-  /** @override */
-  protected _sortCombatants(a: Combat.Combatant, b: Combat.Combatant): number {
-    if (a.flags.dummy) return -1;
-    if (b.flags.dummy) return 1;
+  // @ts-ignore 0.8
+  protected _sortCombatants(a: LancerCombatant, b: LancerCombatant): number {
+    const module = LancerCombatTracker.config.module;
+    if (<boolean | undefined>a.getFlag(module, "dummy") ?? false) return -1;
+    if (<boolean | undefined>b.getFlag(module, "dummy") ?? false) return 1;
     // Sort by Players then Neutrals then Hostiles
-    const dc = (b.token?.disposition ?? -2) - (a.token?.disposition ?? -2);
+    // @ts-ignore 0.8
+    const dc = (b.token?.data.disposition ?? -2) - (a.token?.data.disposition ?? -2);
     if (dc !== 0) return dc;
+    // @ts-ignore 0.8
     return super._sortCombatants(a, b);
   }
 
   /** @override */
-  protected _onCreate(data: Combat.Data, options: Entity.CreateOptions, userId: string): void {
-    if (this.owner)
-      this.createCombatant({
-        flags: { dummy: true },
-        hidden: true,
-      });
-    super._onCreate(data, options, userId);
+  protected async _preCreate(
+    data: unknown,
+    options: Entity.CreateOptions,
+    user: string
+  ): Promise<void> {
+    const module = LancerCombatTracker.config.module;
+    // @ts-ignore 0.8
+    const dummy = new CONFIG.Combatant.documentClass({
+      flags: {
+        [module]: {
+          dummy: true,
+          activations: {},
+        },
+      },
+      hidden: true,
+    });
+    const combatants = this.combatants.map((c: any) => c.toObject());
+    combatants.push(dummy.toObject());
+    // @ts-ignore 0.8
+    this.data.update({ combatants });
+    // @ts-ignore 0.8
+    return super._preCreate(data, options, user);
   }
 
   /**
    * Set all combatants to their max activations
    */
-  async resetActivations(): Promise<void> {
-    const updates = this.combatants.map(c => {
-      if (!isActivations(c.flags?.activations))
-        throw new Error("Assertion failed for c.flags.activations");
+  async resetActivations(): Promise<LancerCombatant[]> {
+    const module = LancerCombatTracker.config.module;
+    const updates = (<LancerCombatant[]>this.combatants).map(c => {
       return {
-        _id: c._id,
-        flags: {
-          activations: {
-            value: c.defeated ? 0 : c.flags?.activations.max ?? 0,
-            max: c.flags?.activations.max ?? 0,
-          },
-        },
-      };
+        // @ts-ignore 0.8
+        _id: c.id,
+        [`flags.${module}.activations.value`]: c.getFlag(module, "activations.max")
+      }
     });
-    // @ts-ignore
-    await this.updateCombatant(updates);
+    // @ts-ignore 0.8
+    return this.updateEmbeddedDocuments("Combatant", updates);
   }
 
   /** @override */
@@ -80,9 +68,12 @@ export class LancerCombat extends Combat {
   }
 
   /** @override */
-  async nextRound(): Promise<void> {
+  // @ts-ignore 0.8
+  async nextRound(): Promise<this> {
+    // @ts-ignore 0.8
+    await super.nextRound();
     await this.resetActivations();
-    return super.nextRound();
+    return this
   }
 
   /** @override */
@@ -106,17 +97,18 @@ export class LancerCombat extends Combat {
    * permission to modify the combat
    */
   async activateCombatant(id: string): Promise<this> {
+    const module = LancerCombatTracker.config.module;
     if (!game.user?.isGM) return this.requestActivation(id);
-    const c = this.getCombatant(id);
-    if (!isActivations(c.flags.activations))
-      throw new Error("Assertion failed for c.flags.activations");
-    const val = c.flags.activations.value;
+    // @ts-ignore 0.8
+    const combatant = this.getEmbeddedDocument("Combatant", id);
+    // @ts-ignore 0.8
+    const activations: Activations = combatant.getFlag(module, "activations") ?? {};
+    const val = activations.value;
     if (val === 0 || val === undefined) return this;
-    await this.updateCombatant({
-      _id: id,
-      flags: { "activations.value": val - 1 },
-    });
-    const turn = this.turns.findIndex(t => t._id === id);
+    // @ts-ignore 0.8
+    await combatant.setFlag(module, "activations", { value: val - 1, max: activations.max });
+    // @ts-ignore 0.8
+    const turn = this.turns.findIndex(t => t.id === id);
     return this.update({ turn });
   }
 
@@ -126,6 +118,67 @@ export class LancerCombat extends Combat {
   protected async requestActivation(id: string): Promise<this> {
     Hooks.callAll("LancerCombatRequestActivate", this, id);
     return this;
+  }
+}
+
+export class LancerCombatant extends Combatant {
+  /**
+   * This just fixes a bug in foundry 0.8.x
+   * @override
+   */
+  testUserPermission(user: User, _permission: string, _options: unknown): boolean {
+    // @ts-ignore 0.8
+    return this.actor?.testUserPermission(user, "update") ?? user.isGM;
+  }
+
+  protected async _preCreate(
+    data: Record<string, unknown>,
+    options: unknown,
+    user: User
+  ): Promise<void> {
+    const module = LancerCombatTracker.config.module;
+    await super._preCreate(data, options, user);
+    // @ts-ignore 0.8
+    if (!this.parent) return;
+    // @ts-ignore 0.8
+    if (this.data.flags?.[module]?.activations === undefined) this.data.update({
+      [`flags.${module}.activations`]: {
+        max: this.actor?.getRollData()?.derived?.mm?.Activations ?? 1,
+        value: 0,
+      },
+    });
+  }
+
+  /** @override */
+  prepareDerivedData(): void {
+    // @ts-ignore 0.8
+    // Prevent foundry from horribly exploding if this.parent is null
+    if (!this.parent) return;
+    super.prepareDerivedData();
+  }
+  /*
+    const module = LancerCombatTracker.config.module;
+    // @ts-ignore 0.8
+    if (this.getFlag(module, "activations.max") === undefined) {
+      // @ts-ignore 0.8
+      this.data.update({
+        [`flags.${module}.activations.max`]:
+          this.actor?.getRollData()?.derived.mm?.Activations ?? 1,
+      });
+    }
+    if (this.getFlag(module, "activations.value") === undefined) {
+      // @ts-ignore 0.8
+      this.data.update({ [`flags.${module}.activations.value`]: 0 });
+    }
+  }
+  */
+
+  /**
+   * Reset to max activations
+   */
+  async resetActivations(): Promise<this> {
+    const module = LancerCombatTracker.config.module;
+    return this.setFlag(module, "activations.value", this.getFlag(module, "activations.max"));
   }
 }
 
