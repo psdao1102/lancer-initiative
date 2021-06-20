@@ -4,7 +4,7 @@ import "jquery";
 declare global {
   namespace ClientSettings {
     interface Values {
-      "lancer-initiative.combat-tracker-appearance": Partial<typeof LancerCombatTracker.appearance>;
+      "lancer-initiative.combat-tracker-appearance": Partial<typeof LancerCombatTracker.trackerAppearance>;
       "lancer-initiative.combat-tracker-sort": boolean;
       "lancer-initiative.combat-tracker-enable-initiative": boolean;
     }
@@ -155,6 +155,7 @@ declare global {
   export class CombatTracker {
     viewed: Combat | null;
 
+    static get defaultOptions(): object;
     get combats(): Combat[];
 
     getData(options: unknown): Promise<object>;

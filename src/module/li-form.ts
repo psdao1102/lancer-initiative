@@ -1,5 +1,5 @@
 import { LancerCombatTracker } from "./lancer-combat-tracker.js";
-type Appearance = typeof LancerCombatTracker.appearance
+type Appearance = typeof LancerCombatTracker.trackerAppearance
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
@@ -19,7 +19,7 @@ export class LIForm extends FormApplication {
 
   /** @override */
   getData(): Appearance {
-    return LancerCombatTracker.appearance;
+    return LancerCombatTracker.trackerAppearance;
   }
 
   /** @override */
@@ -51,7 +51,7 @@ export class LIForm extends FormApplication {
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const config = LancerCombatTracker.config;
+    const config = LancerCombatTracker.trackerConfig;
     game.settings.set(
       config.module,
       "combat-tracker-appearance",
@@ -64,7 +64,7 @@ export class LIForm extends FormApplication {
    * their default values.
    */
   async resetSettings(): Promise<unknown> {
-    const config = LancerCombatTracker.config;
+    const config = LancerCombatTracker.trackerConfig;
     await game.settings.set(config.module, "combat-tracker-appearance", {});
     return this.render();
   }

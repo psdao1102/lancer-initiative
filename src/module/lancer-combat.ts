@@ -8,7 +8,7 @@ import { LancerCombatTracker } from "./lancer-combat-tracker.js";
 export class LancerCombat extends Combat {
   /** @override */
   protected _sortCombatants(a: LancerCombatant, b: LancerCombatant): number {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     if (<boolean | undefined>a.getFlag(module, "dummy") ?? false) return -1;
     if (<boolean | undefined>b.getFlag(module, "dummy") ?? false) return 1;
     // Sort by Players then Neutrals then Hostiles
@@ -23,7 +23,7 @@ export class LancerCombat extends Combat {
     options: unknown,
     user: User
   ): Promise<void> {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     const dummy = new CONFIG.Combatant.documentClass({
       flags: {
         [module]: {
@@ -43,7 +43,7 @@ export class LancerCombat extends Combat {
    * Set all combatants to their max activations
    */
   async resetActivations(): Promise<LancerCombatant[]> {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     const updates = this.combatants.map(c => {
       return {
         _id: c.id,
@@ -88,7 +88,7 @@ export class LancerCombat extends Combat {
    * permission to modify the combat
    */
   async activateCombatant(id: string): Promise<this> {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     if (!game.user?.isGM) return this.requestActivation(id);
     const combatant = this.getEmbeddedDocument("Combatant", id);
     const activations = combatant?.getFlag(module, "activations") ?? {};
@@ -129,7 +129,7 @@ export class LancerCombatant extends Combatant {
 
   /** @override */
   get isVisible(): boolean {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     if (this.getFlag(module, "dummy") ?? false) return false;
     return super.isVisible;
   }
@@ -140,7 +140,7 @@ export class LancerCombatant extends Combatant {
     options: unknown,
     user: User
   ): Promise<void> {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     await super._preCreate(data, options, user);
     if (!this.parent) return;
     if (this.data.flags?.[module]?.activations === undefined)
@@ -157,7 +157,7 @@ export class LancerCombatant extends Combatant {
    * @param num - The number of maximum activations to add (can be negative)
    */
   async addActivations(num: number): Promise<this> {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     if (num === 0) return this;
     const activations = <Activations | undefined>this.getFlag(module, "activations");
     return this.update({
@@ -173,7 +173,7 @@ export class LancerCombatant extends Combatant {
    * @param num - The number of current activations to add (can be negative)
    */
   async modifyCurrentActivations(num: number): Promise<this> {
-    const module = LancerCombatTracker.config.module;
+    const module = LancerCombatTracker.trackerConfig.module;
     if (num === 0) return this;
     const activations = <Activations | undefined>this.getFlag(module, "activations");
     return this.update({

@@ -6,6 +6,16 @@ import { LancerCombat, LancerCombatant, isActivations } from "./lancer-combat.js
  */
 export class LancerCombatTracker extends CombatTracker {
   viewed!: LancerCombat | null;
+
+  /** @override */
+  static get defaultOptions(): object {
+    const module = this.trackerConfig?.module;
+    return {
+      ...super.defaultOptions,
+      template: `modules/${module}/templates/lancer-combat-tracker.html`,
+    };
+  }
+
   /**
    * Intercepts the data being sent to the combat tracker window and
    * optionally sorts the the turn data that gets displayed. This allows the
@@ -14,8 +24,8 @@ export class LancerCombatTracker extends CombatTracker {
    * @override
    */
   async getData(options?: unknown): Promise<object> {
-    const config = (this.constructor as typeof LancerCombatTracker).config;
-    const appearance = (this.constructor as typeof LancerCombatTracker).appearance;
+    const config = (this.constructor as typeof LancerCombatTracker).trackerConfig;
+    const appearance = (this.constructor as typeof LancerCombatTracker).trackerAppearance;
     const data = (await super.getData(options)) as {
       turns: {
         id: string;
@@ -54,62 +64,11 @@ export class LancerCombatTracker extends CombatTracker {
       });
     }
     data.icon_class = appearance.icon;
+    data.enable_initiative = game.settings.get(
+      config.module,
+      "combat-tracker-enable-initiative"
+    ) as boolean;
     return data;
-  }
-
-  /**
-   * Make all the changes to the combat tracker before setting up event
-   * handlers.
-   * @override
-   */
-  protected async _renderInner(data: object): Promise<JQuery<HTMLElement>> {
-    const config = (this.constructor as typeof LancerCombatTracker).config;
-    const appearance = (this.constructor as typeof LancerCombatTracker).appearance;
-    const html = await super._renderInner(data);
-    const settings = {
-      icon: appearance.icon,
-      enable_initiative: game.settings.get(
-        config.module,
-        "combat-tracker-enable-initiative"
-      ) as boolean,
-    };
-    html.find(".combatant").each(function (): void {
-      const combatantId = $(this).data("combatantId") as string;
-      // @ts-ignore 0.8
-      const combatant = data.combat!.getEmbeddedDocument("Combatant", combatantId);
-      const activations: unknown = combatant.getFlag(config.module, "activations");
-      if (!isActivations(activations)) return;
-
-      // render icons
-      const n = activations.value ?? 0;
-      const d = (activations.max ?? 1) - n;
-      $(this)
-        .find(".token-initiative")
-        .attr("data-control", "activate")
-        .html(
-          `<a class="${settings.icon}"></a>`.repeat(n) +
-            `<i class="${settings.icon} done"></i>`.repeat(d)
-        );
-
-      if (
-        settings.enable_initiative &&
-        combatant.permission === 3 &&
-        combatant.initiative === null
-      ) {
-        const init_button = document.createElement("a");
-        $(this).find(".combatant-controls").prepend($(init_button));
-        $(init_button)
-          .addClass("combatant-control")
-          .attr("data-control", "rollInitiative")
-          .prop("title", game.i18n.localize("COMBAT.InitiativeRoll"))
-          .html('<i class="fas fa-dice-d20"></i>');
-      } else if (settings.enable_initiative && combatant.initiative !== null) {
-        const init_val = document.createElement("span");
-        $(this).find(".combatant-controls").prepend($(init_val));
-        $(init_val).addClass("initiative").css("flex", "0 0 1.5em").text(combatant.initiative);
-      }
-    });
-    return html;
   }
 
   /** @override */
@@ -157,7 +116,7 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   /** @override */
-  protected _getEntryContextOptions(): {
+  protected __getEntryContextOptions(): {
     name: string;
     icon: string;
     callback: (...args: any) => unknown;
@@ -190,8 +149,8 @@ export class LancerCombatTracker extends CombatTracker {
   /**
    * Get the current appearance data from settings
    */
-  static get appearance(): LIConfig["def_appearance"] {
-    const config = (this.prototype.constructor as typeof LancerCombatTracker).config;
+  static get trackerAppearance(): LIConfig["def_appearance"] {
+    const config = (this.prototype.constructor as typeof LancerCombatTracker).trackerConfig;
     return {
       ...config.def_appearance,
       ...(game.settings.get(config.module, "combat-tracker-appearance") as Partial<
@@ -203,7 +162,7 @@ export class LancerCombatTracker extends CombatTracker {
   /**
    * Holds the default configuration of the module
    */
-  static config: LIConfig = {
+  static trackerConfig: LIConfig = {
     module: "",
     def_appearance: {
       icon: "fas fa-chevron-circle-right",
@@ -215,6 +174,13 @@ export class LancerCombatTracker extends CombatTracker {
     },
   };
 }
+
+// @ts-ignore fuck the police
+Handlebars.registerHelper("lancerinitiative-repeat", function (n, block) {
+  let accum = "";
+  for (let i = 0; i < n; i++) accum += block.fn(i);
+  return accum;
+});
 
 interface LIConfig {
   module: string;

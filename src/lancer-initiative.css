@@ -6,6 +6,8 @@
   --lancer-initiative-done-color: #000000;
 }
 
+.-emu #sidebar #combat #combat-tracker li.combatant,
+.-emu #combat-popout #combat #combat-tracker li.combatant,
 li.combatant {
   padding-right: 0.5em;
   border: 3px;

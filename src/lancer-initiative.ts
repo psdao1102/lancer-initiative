@@ -2,7 +2,7 @@ import { LancerCombat, LancerCombatant } from "./module/lancer-combat.js";
 import { LancerCombatTracker } from "./module/lancer-combat-tracker.js";
 import { LIForm } from "./module/li-form.js";
 
-type Appearance = typeof LancerCombatTracker["appearance"];
+type Appearance = typeof LancerCombatTracker["trackerAppearance"];
 const module = "lancer-initiative";
 
 function migrateSettings(): void {
@@ -26,7 +26,7 @@ function migrateSettings(): void {
 
 function registerSettings(): void {
   console.log("lancer-initiative | Initializing Lancer Initiative Module");
-  const config = LancerCombatTracker.config;
+  const config = LancerCombatTracker.trackerConfig;
   config.module = module;
 
   switch (game.system.id) {
@@ -100,11 +100,11 @@ function registerSettings(): void {
   Hooks.callAll("LancerIntitaitveInit");
 
   // Set the css vars
-  setAppearance(LancerCombatTracker.appearance);
+  setAppearance(LancerCombatTracker.trackerAppearance);
 }
 
 function setAppearance(val: Partial<Appearance>): void {
-  const defaults = LancerCombatTracker.config.def_appearance;
+  const defaults = LancerCombatTracker.trackerConfig.def_appearance;
   document.documentElement.style.setProperty(
     "--lancer-initiative-icon-size",
     `${val?.icon_size ?? defaults.icon_size}rem`
