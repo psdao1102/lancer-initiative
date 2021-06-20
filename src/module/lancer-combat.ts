@@ -54,8 +54,8 @@ export class LancerCombat extends Combat {
       return {
         // @ts-ignore 0.8
         _id: c.id,
-        [`flags.${module}.activations.value`]: c.getFlag(module, "activations.max")
-      }
+        [`flags.${module}.activations.value`]: c.getFlag(module, "activations.max"),
+      };
     });
     // @ts-ignore 0.8
     return this.updateEmbeddedDocuments("Combatant", updates);
@@ -73,7 +73,7 @@ export class LancerCombat extends Combat {
     // @ts-ignore 0.8
     await super.nextRound();
     await this.resetActivations();
-    return this
+    return this;
   }
 
   /** @override */
@@ -131,6 +131,24 @@ export class LancerCombatant extends Combatant {
     return this.actor?.testUserPermission(user, "update") ?? user.isGM;
   }
 
+  /**
+   * Prevent foundry from horribly exploding if this.parent is null
+   * @override
+   */
+  prepareDerivedData(): void {
+    // @ts-ignore 0.8
+    if (!this.parent) return;
+    super.prepareDerivedData();
+  }
+
+  /** @override */
+  get isVisible(): boolean {
+    const module = LancerCombatTracker.config.module;
+    if (this.getFlag(module, "dummy") ?? false) return false;
+    return super.isVisible;
+  }
+
+  /** @override */
   protected async _preCreate(
     data: Record<string, unknown>,
     options: unknown,
@@ -141,44 +159,45 @@ export class LancerCombatant extends Combatant {
     // @ts-ignore 0.8
     if (!this.parent) return;
     // @ts-ignore 0.8
-    if (this.data.flags?.[module]?.activations === undefined) this.data.update({
+    if (this.data.flags?.[module]?.activations === undefined)
+      // @ts-ignore 0.8
+      this.data.update({
+        [`flags.${module}.activations`]: {
+          max: this.actor?.getRollData()?.derived?.mm?.Activations ?? 1,
+          value: 0,
+        },
+      });
+  }
+
+  /**
+   * Adjusts the number of activations that a combatant can take
+   * @param num - The number of maximum activations to add (can be negative)
+   */
+  async addActivations(num: number): Promise<this> {
+    const module = LancerCombatTracker.config.module;
+    if (num === 0) return this;
+    const activations = <Activations | undefined>this.getFlag(module, "activations");
+    return this.update({
       [`flags.${module}.activations`]: {
-        max: this.actor?.getRollData()?.derived?.mm?.Activations ?? 1,
-        value: 0,
+        max: Math.clamped((activations?.max ?? 1) + num, 1, 1024),
+        value: Math.clamped((activations?.value ?? 0) + num, 0, 1024),
       },
     });
   }
 
-  /** @override */
-  prepareDerivedData(): void {
-    // @ts-ignore 0.8
-    // Prevent foundry from horribly exploding if this.parent is null
-    if (!this.parent) return;
-    super.prepareDerivedData();
-  }
-  /*
-    const module = LancerCombatTracker.config.module;
-    // @ts-ignore 0.8
-    if (this.getFlag(module, "activations.max") === undefined) {
-      // @ts-ignore 0.8
-      this.data.update({
-        [`flags.${module}.activations.max`]:
-          this.actor?.getRollData()?.derived.mm?.Activations ?? 1,
-      });
-    }
-    if (this.getFlag(module, "activations.value") === undefined) {
-      // @ts-ignore 0.8
-      this.data.update({ [`flags.${module}.activations.value`]: 0 });
-    }
-  }
-  */
-
   /**
-   * Reset to max activations
+   * Adjusts the number of current activations that a combatant has
+   * @param num - The number of current activations to add (can be negative)
    */
-  async resetActivations(): Promise<this> {
+  async modifyCurrentActivations(num: number): Promise<this> {
     const module = LancerCombatTracker.config.module;
-    return this.setFlag(module, "activations.value", this.getFlag(module, "activations.max"));
+    if (num === 0) return this;
+    const activations = <Activations | undefined>this.getFlag(module, "activations");
+    return this.update({
+      [`flags.${module}.activations`]: {
+        value: Math.clamped((activations?.value ?? 0) + num, 0, activations?.max ?? 1),
+      },
+    });
   }
 }
 

@@ -14,11 +14,15 @@ declare global {
     get actor(): Actor | null;
     testUserPermission(user: User, permission: string, options?: unknown): boolean;
 
+    get isVisible(): boolean;
+
     protected _onCreate(data: Record<string, any>, options: unknown, user: User): void;
     protected _preCreate(data: Record<string, any>, options: unknown, user: User): Promise<void>;
 
     setFlag(scope: string, key: string, value: unknown): Promise<this>;
     getFlag(scope: string, key: string): any;
+
+    update(data: Record<string, unknown>, options?: Record<string, unknown>): Promise<this>;
 
     prepareBaseData(): void;
     prepareDerivedData(): void;

@@ -1,4 +1,4 @@
-import { LancerCombat, isActivations } from "./lancer-combat.js";
+import { LancerCombat, LancerCombatant, isActivations } from "./lancer-combat.js";
 
 /**
  * Overrides the display of the combat and turn order tab to add activation
@@ -127,38 +127,21 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {
-    const combatant = this.combat!.getCombatant(li.data("combatant-id"));
-    if (!isActivations(combatant.flags.activations))
-      throw new Error("Assertion failed for combatant.flags.activations");
-    const max = (combatant.flags.activations.max ?? 0) + 1;
-    await this.combat!.updateCombatant({
-      _id: combatant._id,
-      flags: { "activations.max": max },
-    });
+    // @ts-ignore 0.8
+    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"));
+    await combatant.addActivations(1);
   }
 
   protected async _onRemoveActivation(li: JQuery<HTMLElement>): Promise<void> {
-    const combatant = this.combat!.getCombatant(li.data("combatant-id"));
-    if (!isActivations(combatant.flags.activations))
-      throw new Error("Assertion failed for combatant.flags.activations");
-    const max = (combatant.flags.activations.max ?? 0) - 1;
-    const cur = Math.clamped(combatant.flags.activations.value ?? 0, 0, max > 0 ? max : 1);
-    await this.combat!.updateCombatant({
-      _id: combatant._id,
-      flags: { "activations.max": max > 0 ? max : 1, "activations.value": cur },
-    });
+    // @ts-ignore 0.8
+    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"));
+    await combatant.addActivations(-1);
   }
 
   protected async _onUndoActivation(li: JQuery<HTMLElement>): Promise<void> {
-    const combatant = this.combat!.getCombatant(li.data("combatant-id"));
-    if (!isActivations(combatant.flags.activations))
-      throw new Error("Assertion failed for combatant.flags.activations");
-    const max = combatant.flags.activations.max ?? 0;
-    const cur = Math.clamped((combatant.flags.activations.value ?? 0) + 1, 0, max > 0 ? max : 1);
-    await this.combat!.updateCombatant({
-      _id: combatant._id,
-      flags: { "activations.value": cur },
-    });
+    // @ts-ignore 0.8
+    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"));
+    await combatant.modifyCurrentActivations(1);
   }
 
   /** @override */
