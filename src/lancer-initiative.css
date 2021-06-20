@@ -77,3 +77,10 @@ li.combatant.enemy {
   padding: 0px;
   margin: 1rem;
 }
+
+#lancer-initiative-settings .token-image {
+  height: 48px;
+  width: 48px;
+  max-width: 48px;
+  border: 0px;
+}
