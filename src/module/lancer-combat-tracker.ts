@@ -6,7 +6,7 @@ import { LancerCombat, LancerCombatant, isActivations } from "./lancer-combat.js
  */
 export class LancerCombatTracker extends CombatTracker {
   // @ts-ignore 0.8
-  combat!: LancerCombat | null;
+  combat!: undefined;
   viewed!: LancerCombat | null;
   /**
    * Intercepts the data being sent to the combat tracker window and
@@ -27,11 +27,10 @@ export class LancerCombatTracker extends CombatTracker {
     };
     data.turns = data.turns.map(t => {
       // @ts-ignore 0.8
-      const combatant = this.viewed.getEmbeddedDocument("Combatant", t.id)
+      const combatant = this.viewed.getEmbeddedDocument("Combatant", t.id);
       // @ts-ignore 0.8
       const activations: unknown = combatant.getFlag(config.module, "activations");
-      if (!isActivations(activations))
-        throw new Error("Assertion failed for t.flags.activations");
+      if (!isActivations(activations)) throw new Error("Assertion failed for t.flags.activations");
       return {
         ...t,
         css: t.css + " " + disp[combatant.token?.data.disposition ?? 0],
@@ -65,7 +64,10 @@ export class LancerCombatTracker extends CombatTracker {
     const html = await super._renderInner(data);
     const settings = {
       icon: appearance.icon,
-      enable_initiative: game.settings.get(config.module, "combat-tracker-enable-initiative") as boolean,
+      enable_initiative: game.settings.get(
+        config.module,
+        "combat-tracker-enable-initiative"
+      ) as boolean,
     };
     html.find(".combatant").each(function (): void {
       const combatantId = $(this).data("combatantId") as string;
@@ -128,19 +130,28 @@ export class LancerCombatTracker extends CombatTracker {
 
   protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {
     // @ts-ignore 0.8
-    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"));
+    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument(
+      "Combatant",
+      li.data("combatant-id")
+    );
     await combatant.addActivations(1);
   }
 
   protected async _onRemoveActivation(li: JQuery<HTMLElement>): Promise<void> {
     // @ts-ignore 0.8
-    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"));
+    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument(
+      "Combatant",
+      li.data("combatant-id")
+    );
     await combatant.addActivations(-1);
   }
 
   protected async _onUndoActivation(li: JQuery<HTMLElement>): Promise<void> {
     // @ts-ignore 0.8
-    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"));
+    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument(
+      "Combatant",
+      li.data("combatant-id")
+    );
     await combatant.modifyCurrentActivations(1);
   }
 
@@ -167,11 +178,16 @@ export class LancerCombatTracker extends CombatTracker {
     return m;
   }
 
+  /**
+   * Get the current appearance data from settings
+   */
   static get appearance(): LIConfig["def_appearance"] {
     const config = (this.prototype.constructor as typeof LancerCombatTracker).config;
     return {
       ...config.def_appearance,
-      ...(game.settings.get(config.module, "combat-tracker-appearance") as Partial<LIConfig["def_appearance"]>),
+      ...(game.settings.get(config.module, "combat-tracker-appearance") as Partial<
+        LIConfig["def_appearance"]
+      >),
     };
   }
 
