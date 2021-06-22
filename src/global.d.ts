@@ -2,9 +2,17 @@ import { LancerCombatTracker } from "./module/lancer-combat-tracker";
 import "jquery";
 
 declare global {
+  namespace foundry {
+    namespace utils {
+      function diffObject(a: object, b: object, options: object): object;
+    }
+  }
+
   namespace ClientSettings {
     interface Values {
-      "lancer-initiative.combat-tracker-appearance": Partial<typeof LancerCombatTracker.trackerAppearance>;
+      "lancer-initiative.combat-tracker-appearance": Partial<
+        typeof LancerCombatTracker.trackerAppearance
+      >;
       "lancer-initiative.combat-tracker-sort": boolean;
       "lancer-initiative.combat-tracker-enable-initiative": boolean;
     }
@@ -174,6 +182,4 @@ declare global {
     activateListeners(html: JQuery<HTMLElement>): void;
     render(): void;
   }
-
-  function diffObject(a: object, b: object, options: object): object;
 }

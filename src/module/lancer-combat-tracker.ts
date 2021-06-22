@@ -116,7 +116,7 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   /** @override */
-  protected __getEntryContextOptions(): {
+  protected _getEntryContextOptions(): {
     name: string;
     icon: string;
     callback: (...args: any) => unknown;

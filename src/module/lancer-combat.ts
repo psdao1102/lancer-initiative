@@ -62,9 +62,8 @@ export class LancerCombat extends Combat {
 
   /** @override */
   async nextRound(): Promise<this> {
-    await super.nextRound();
     await this.resetActivations();
-    return this;
+    return super.nextRound();
   }
 
   /** @override */

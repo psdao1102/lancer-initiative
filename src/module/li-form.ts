@@ -1,5 +1,5 @@
 import { LancerCombatTracker } from "./lancer-combat-tracker.js";
-type Appearance = typeof LancerCombatTracker.trackerAppearance
+type Appearance = typeof LancerCombatTracker.trackerAppearance;
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
@@ -14,7 +14,7 @@ export class LIForm extends FormApplication {
       id: "lancer-initiative-settings",
       template: "modules/lancer-initiative/templates/lancer-initiative-settings.html",
       width: 350,
-    }
+    };
   }
 
   /** @override */
@@ -55,7 +55,7 @@ export class LIForm extends FormApplication {
     game.settings.set(
       config.module,
       "combat-tracker-appearance",
-      diffObject(config.def_appearance, data, { inner: true })
+      foundry.utils.diffObject(config.def_appearance, data, { inner: true })
     );
   }
 
