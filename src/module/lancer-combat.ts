@@ -87,6 +87,7 @@ export class LancerCombat extends Combat {
    * permission to modify the combat
    */
   async activateCombatant(id: string): Promise<this> {
+    // TODO: Simplify this using LancerCombatant#modifyCurrentActivations
     const module = LancerCombatTracker.trackerConfig.module;
     if (!game.user?.isGM) return this.requestActivation(id);
     const combatant = this.getEmbeddedDocument("Combatant", id);
@@ -110,20 +111,27 @@ export class LancerCombat extends Combat {
 
 export class LancerCombatant extends Combatant {
   /**
-   * This just fixes a bug in foundry 0.8.x
+   * This just fixes a bug in foundry 0.8.x that prevents Combatants with no
+   * associated token or actor from being modified, even by the GM
    * @override
    */
   testUserPermission(user: User, _permission: string, _options: unknown): boolean {
     return this.actor?.testUserPermission(user, "update") ?? user.isGM;
   }
 
-  /**
-   * Prevent foundry from horribly exploding if this.parent is null
-   * @override
-   */
+  /** @override */
   prepareDerivedData(): void {
+    // Prevent foundry from horribly exploding if this.parent is null
     if (!this.parent) return;
     super.prepareDerivedData();
+    const module = LancerCombatTracker.trackerConfig.module;
+    if (!this.parent) return;
+    if (this.data.flags?.[module]?.activations?.max === undefined)
+      this.data.update({
+        [`flags.${module}.activations`]: {
+          max: this.actor?.getRollData()?.derived?.mm?.Activations ?? 1,
+        },
+      });
   }
 
   /** @override */
@@ -131,24 +139,6 @@ export class LancerCombatant extends Combatant {
     const module = LancerCombatTracker.trackerConfig.module;
     if (this.getFlag(module, "dummy") ?? false) return false;
     return super.isVisible;
-  }
-
-  /** @override */
-  protected async _preCreate(
-    data: ClientDocument["data"],
-    options: unknown,
-    user: User
-  ): Promise<void> {
-    const module = LancerCombatTracker.trackerConfig.module;
-    await super._preCreate(data, options, user);
-    if (!this.parent) return;
-    if (this.data.flags?.[module]?.activations === undefined)
-      this.data.update({
-        [`flags.${module}.activations`]: {
-          max: this.actor?.getRollData()?.derived?.mm?.Activations ?? 1,
-          value: 0,
-        },
-      });
   }
 
   /**
