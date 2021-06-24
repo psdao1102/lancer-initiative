@@ -44,10 +44,10 @@ export class LancerCombat extends Combat {
    */
   async resetActivations(): Promise<LancerCombatant[]> {
     const module = LancerCombatTracker.trackerConfig.module;
-    const updates = this.combatants.map(c => {
+    const updates = (this.combatants as LancerCombatant[]).map((c: LancerCombatant) => {
       return {
         _id: c.id,
-        [`flags.${module}.activations.value`]: c.getFlag(module, "activations.max"),
+        [`flags.${module}.activations.value`]: c.activations.max ?? 0,
       };
     });
     // @ts-ignore Conversion is too fraught
@@ -87,15 +87,11 @@ export class LancerCombat extends Combat {
    * permission to modify the combat
    */
   async activateCombatant(id: string): Promise<this> {
-    // TODO: Simplify this using LancerCombatant#modifyCurrentActivations
-    const module = LancerCombatTracker.trackerConfig.module;
     if (!game.user?.isGM) return this.requestActivation(id);
-    const combatant = this.getEmbeddedDocument("Combatant", id);
-    const activations = combatant?.getFlag(module, "activations") ?? {};
-    if (!isActivations(activations)) throw new Error("Assertion failed for activation data");
-    const val = activations.value;
+    const combatant: LancerCombatant | undefined = this.getEmbeddedDocument("Combatant", id);
+    const val = combatant?.activations.value;
     if (val === 0 || val === undefined) return this;
-    await combatant?.setFlag(module, "activations", { value: val - 1, max: activations.max });
+    await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
     return this.update({ turn });
   }
@@ -142,17 +138,24 @@ export class LancerCombatant extends Combatant {
   }
 
   /**
+   * Returns the current activation data for the combatant.
+   */
+  get activations(): Activations {
+    const module = LancerCombatTracker.trackerConfig.module;
+    return <Activations | undefined>this.getFlag(module, "activations") ?? {};
+  }
+
+  /**
    * Adjusts the number of activations that a combatant can take
    * @param num - The number of maximum activations to add (can be negative)
    */
   async addActivations(num: number): Promise<this> {
     const module = LancerCombatTracker.trackerConfig.module;
     if (num === 0) return this;
-    const activations = <Activations | undefined>this.getFlag(module, "activations");
     return this.update({
       [`flags.${module}.activations`]: {
-        max: Math.max((activations?.max ?? 1) + num, 1),
-        value: Math.max((activations?.value ?? 0) + num, 0),
+        max: Math.max((this.activations.max ?? 1) + num, 1),
+        value: Math.max((this.activations.value ?? 0) + num, 0),
       },
     });
   }
@@ -164,10 +167,9 @@ export class LancerCombatant extends Combatant {
   async modifyCurrentActivations(num: number): Promise<this> {
     const module = LancerCombatTracker.trackerConfig.module;
     if (num === 0) return this;
-    const activations = <Activations | undefined>this.getFlag(module, "activations");
     return this.update({
       [`flags.${module}.activations`]: {
-        value: Math.clamped((activations?.value ?? 0) + num, 0, activations?.max ?? 1),
+        value: Math.clamped((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
       },
     });
   }
@@ -179,18 +181,4 @@ export class LancerCombatant extends Combatant {
 export interface Activations {
   max?: number;
   value?: number;
-}
-
-/**
- * Typeguard for activations flag of combatants
- */
-export function isActivations(
-  v: any // eslint-disable-line @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types
-  // eslint hates typeguards
-): v is Activations {
-  return (
-    typeof v === "object" &&
-    (typeof v.max === "undefined" || typeof v.max === "number") &&
-    (typeof v.value === "undefined" || typeof v.value === "number")
-  );
 }

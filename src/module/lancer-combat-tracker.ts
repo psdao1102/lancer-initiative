@@ -1,4 +1,4 @@
-import { LancerCombat, LancerCombatant, isActivations } from "./lancer-combat.js";
+import { LancerCombat, LancerCombatant } from "./lancer-combat.js";
 
 /**
  * Overrides the display of the combat and turn order tab to add activation
@@ -42,14 +42,12 @@ export class LancerCombatTracker extends CombatTracker {
       [1]: "player",
     };
     data.turns = data.turns.map(t => {
-      const combatant = this.viewed!.getEmbeddedDocument("Combatant", t.id);
-      const activations = combatant.getFlag(config.module, "activations");
-      if (!isActivations(activations)) return t;
+      const combatant: LancerCombatant | undefined = this.viewed!.getEmbeddedDocument("Combatant", t.id);
       return {
         ...t,
-        css: t.css + " " + disp[combatant.token?.data.disposition ?? 0],
-        pending: activations.value ?? 0,
-        finished: (activations.max ?? 1) - (activations.value ?? 0),
+        css: t.css + " " + disp[combatant?.token?.data.disposition ?? 0],
+        pending: combatant?.activations.value ?? 0,
+        finished: (combatant?.activations.max ?? 1) - (combatant?.activations.value ?? 0),
       };
     });
     if (sort) {
