@@ -24,15 +24,10 @@ export class LancerCombat extends Combat {
     user: User
   ): Promise<void> {
     const module = LancerCombatTracker.trackerConfig.module;
-    const dummy = new CONFIG.Combatant.documentClass({
-      flags: {
-        [module]: {
-          dummy: true,
-          activations: {},
-        },
-      },
-      hidden: true,
-    });
+    const dummy = new CONFIG.Combatant.documentClass(
+      { flags: { [module]: { dummy: true, activations: { max: 0 } } }, hidden: true },
+      { parent: this }
+    );
     const combatants = this.combatants.map(c => c.toObject());
     combatants.push(dummy.toObject());
     this.data.update({ combatants });
@@ -47,7 +42,14 @@ export class LancerCombat extends Combat {
     const updates = (this.combatants as LancerCombatant[]).map((c: LancerCombatant) => {
       return {
         _id: c.id,
-        [`flags.${module}.activations.value`]: c.activations.max ?? 0,
+        [`flags.${module}.activations.value`]:
+          this.settings.skipDefeated &&
+          (c.data.defeated ||
+            c.actor?.effects.find(
+              (e: any) => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId
+            ))
+            ? 0
+            : c.activations.max ?? 0,
       };
     });
     // @ts-ignore Conversion is too fraught
@@ -89,8 +91,7 @@ export class LancerCombat extends Combat {
   async activateCombatant(id: string): Promise<this> {
     if (!game.user?.isGM) return this.requestActivation(id);
     const combatant: LancerCombatant | undefined = this.getEmbeddedDocument("Combatant", id);
-    const val = combatant?.activations.value;
-    if (val === 0 || val === undefined) return this;
+    if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
     return this.update({ turn });
@@ -117,15 +118,13 @@ export class LancerCombatant extends Combatant {
 
   /** @override */
   prepareDerivedData(): void {
-    // Prevent foundry from horribly exploding if this.parent is null
-    if (!this.parent) return;
     super.prepareDerivedData();
     const module = LancerCombatTracker.trackerConfig.module;
     if (!this.parent) return;
     if (this.data.flags?.[module]?.activations?.max === undefined)
       this.data.update({
         [`flags.${module}.activations`]: {
-          max: this.actor?.getRollData()?.derived?.mm?.Activations ?? 1,
+          max: foundry.utils.getProperty(this.actor?.getRollData(), "derived.mm.Activations") ?? 1,
         },
       });
   }

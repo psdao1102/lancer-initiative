@@ -5,6 +5,7 @@ declare global {
   namespace foundry {
     namespace utils {
       function diffObject(a: object, b: object, options: object): object;
+      function getProperty(obj: object | undefined, key: string): unknown;
     }
   }
 
@@ -63,6 +64,7 @@ declare global {
   var CONFIG: {
     Combat: {
       documentClass: new (...args: any) => Combat;
+      defeatedStatusId: string;
       initiative: {
         formula: string | null;
       };
@@ -138,6 +140,10 @@ declare global {
     get combatants(): Combatant[];
     get combatant(): Combatant;
     get round(): number;
+    get settings(): {
+      resource: string;
+      skipDefeated: boolean;
+    };
     protected _sortCombatants(a: Combatant, b: Combatant): number;
 
     getEmbeddedDocument(document: "Combatant", id: string): Combatant | undefiend;

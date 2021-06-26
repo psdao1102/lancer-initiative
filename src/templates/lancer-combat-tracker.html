@@ -24,10 +24,10 @@
 
         <nav class="encounters flexrow">
             {{#if user.isGM}}
-            <a class="combat-control" title="{{localize 'COMBAT.RollAll'}}" data-control="rollAll" {{#unless turns}}disabled{{/unless}}>
+            <a class="combat-control" title="{{localize 'COMBAT.RollAll'}}" data-control="rollAll" {{#unless turns}}disabled{{/unless}} {{#unless enable_initiative}}disabled{{/unless}}>
                 <i class="fas fa-users"></i>
             </a>
-            <a class="combat-control" title="{{localize 'COMBAT.RollNPC'}}" data-control="rollNPC" {{#unless turns}}disabled{{/unless}}>
+            <a class="combat-control" title="{{localize 'COMBAT.RollNPC'}}" data-control="rollNPC" {{#unless turns}}disabled{{/unless}} {{#unless enable_initiative}}disabled{{/unless}}>
                 <i class="fas fa-users-cog"></i>
             </a>
             {{/if}}
