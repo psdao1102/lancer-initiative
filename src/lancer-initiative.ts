@@ -114,6 +114,10 @@ function setAppearance(val: Partial<Appearance>): void {
     val?.player_color ?? defaults.player_color
   );
   document.documentElement.style.setProperty(
+    "--lancer-initiative-friendly-color",
+    val?.friendly_color ?? defaults.friendly_color
+  );
+  document.documentElement.style.setProperty(
     "--lancer-initiative-neutral-color",
     val?.neutral_color ?? defaults.neutral_color
   );

@@ -12,7 +12,7 @@ export class LancerCombat extends Combat {
     if (<boolean | undefined>a.getFlag(module, "dummy") ?? false) return -1;
     if (<boolean | undefined>b.getFlag(module, "dummy") ?? false) return 1;
     // Sort by Players then Neutrals then Hostiles
-    const dc = (b.token?.data.disposition ?? -2) - (a.token?.data.disposition ?? -2);
+    const dc = b.disposition - a.disposition;
     if (dc !== 0) return dc;
     return super._sortCombatants(a, b);
   }
@@ -138,11 +138,26 @@ export class LancerCombatant extends Combatant {
   }
 
   /**
-   * Returns the current activation data for the combatant.
+   * The current activation data for the combatant.
    */
   get activations(): Activations {
     const module = LancerCombatTracker.trackerConfig.module;
     return <Activations | undefined>this.getFlag(module, "activations") ?? {};
+  }
+
+  /**
+   * The disposition for this combatant. In order, manually specified for this
+   * combatant, token dispostion, token disposition for the associated actor,
+   * -2.
+   */
+  get disposition(): number {
+    const module = LancerCombatTracker.trackerConfig.module;
+    return (
+      <number | undefined>this.getFlag(module, "disposition") ??
+      (this.actor?.hasPlayerOwner ?? false
+        ? 2
+        : this.token?.data.disposition ?? this.actor?.data.token.disposition ?? -2)
+    );
   }
 
   /**

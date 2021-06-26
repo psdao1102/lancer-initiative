@@ -6,6 +6,8 @@
   "LANCERINITIATIVE.IconPreview": "Icon Preview",
   "LANCERINITIATIVE.PCColor": "Player Color",
   "LANCERINITIATIVE.PCColorDesc": "Default: #44abe0",
+  "LANCERINITIATIVE.FriendlyColor": "Friendly Color",
+  "LANCERINITIATIVE.FriendlyColorDesc": "Default: #44abe0",
   "LANCERINITIATIVE.NeutralColor": "Neutral Color",
   "LANCERINITIATIVE.NeutralColorDesc": "Default: #146464",
   "LANCERINITIATIVE.EnemyColor": "Enemy Color",

@@ -48,6 +48,14 @@
     <p class="notes">{{ localize "LANCERINITIATIVE.PCColorDesc" }}</p>
   </div>
   <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.FriendlyColor" }}</label>
+    <div class="form-fields">
+      <input type="text" name="friendly_color" value="{{ friendly_color }}" data-dtype="String"/>
+      <input type="color" name="friendly_selector" value="{{ friendly_color }}" data-edit="friendly_color"/>
+    </div>
+    <p class="notes">{{ localize "LANCERINITIATIVE.FriendlyColorDesc" }}</p>
+  </div>
+  <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.NeutralColor" }}</label>
     <div class="form-fields">
       <input type="text" name="neutral_color" value="{{ neutral_color }}" data-dtype="String"/>

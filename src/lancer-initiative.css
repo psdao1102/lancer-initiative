@@ -1,6 +1,7 @@
 :root {
   --lancer-initiative-icon-size: 1rem;
   --lancer-initiative-player-color: #000000;
+  --lancer-initiative-friendly-color: #000000;
   --lancer-initiative-neutral-color: #000000;
   --lancer-initiative-enemy-color: #000000;
   --lancer-initiative-done-color: #000000;
@@ -20,6 +21,10 @@ li.combatant {
 
 li.combatant.player {
   border-color: var(--lancer-initiative-player-color) !important;
+}
+
+li.combatant.friendly {
+  border-color: var(--lancer-initiative-friendly-color) !important;
 }
 
 li.combatant.neutral {
@@ -50,6 +55,9 @@ li.combatant.enemy {
   color: var(--lancer-initiative-player-color);
 }
 
+#combat #combat-tracker .combatant.friendly .token-initiative a {
+  color: var(--lancer-initiative-friendly-color);
+}
 #combat #combat-tracker .combatant.neutral .token-initiative a {
   color: var(--lancer-initiative-neutral-color);
 }

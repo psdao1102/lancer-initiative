@@ -37,15 +37,17 @@ export class LancerCombatTracker extends CombatTracker {
     };
     const sort = game.settings.get(config.module, "combat-tracker-sort") as boolean;
     const disp: Record<number, string> = {
+      [-2]: "",
       [-1]: "enemy",
       [0]: "neutral",
-      [1]: "player",
+      [1]: "friendly",
+      [2]: "player",
     };
     data.turns = data.turns.map(t => {
       const combatant: LancerCombatant | undefined = this.viewed!.getEmbeddedDocument("Combatant", t.id);
       return {
         ...t,
-        css: t.css + " " + disp[combatant?.token?.data.disposition ?? 0],
+        css: t.css + " " + disp[combatant?.disposition ?? -2],
         pending: combatant?.activations.value ?? 0,
         finished: (combatant?.activations.max ?? 1) - (combatant?.activations.value ?? 0),
       };
@@ -166,6 +168,7 @@ export class LancerCombatTracker extends CombatTracker {
       icon: "fas fa-chevron-circle-right",
       icon_size: 1.5,
       player_color: "#44abe0",
+      friendly_color: "#44abe0",
       neutral_color: "#146464",
       enemy_color: "#d98f30",
       done_color: "#444444",
@@ -186,6 +189,7 @@ interface LIConfig {
     icon: string;
     icon_size: number;
     player_color: string;
+    friendly_color: string;
     neutral_color: string;
     enemy_color: string;
     done_color: string;
