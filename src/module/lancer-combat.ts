@@ -120,13 +120,17 @@ export class LancerCombatant extends Combatant {
   prepareDerivedData(): void {
     super.prepareDerivedData();
     const module = LancerCombatTracker.trackerConfig.module;
-    if (!this.parent) return;
-    if (this.data.flags?.[module]?.activations?.max === undefined)
+    if (this.data.flags?.[module]?.activations?.max === undefined) {
       this.data.update({
         [`flags.${module}.activations`]: {
-          max: foundry.utils.getProperty(this.actor?.getRollData(), "derived.mm.Activations") ?? 1,
+          max:
+            foundry.utils.getProperty(
+              this.actor?.getRollData(),
+              <string>game.settings.get(module, "combat-tracker-activation-path")
+            ) ?? 1,
         },
       });
+    }
   }
 
   /** @override */

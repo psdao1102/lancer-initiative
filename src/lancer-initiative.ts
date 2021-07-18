@@ -65,6 +65,12 @@ function registerSettings(): void {
     type: Boolean,
     default: false,
   });
+  game.settings.register(module, "combat-tracker-activation-path", {
+    scope: "world",
+    config: false,
+    type: String,
+    default: "derived.mm.Activations",
+  });
   game.settings.register(module, "combat-tracker-migrated-settings", {
     scope: "world",
     config: false,
