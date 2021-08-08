@@ -5,9 +5,9 @@ type Appearance = typeof LancerCombatTracker.trackerAppearance;
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class LIForm extends FormApplication {
+export class LIForm extends FormApplication<FormApplication.Options, Appearance> {
   /** @override */
-  static get defaultOptions(): object {
+  static get defaultOptions(): FormApplication.Options {
     return {
       ...super.defaultOptions,
       title: "Lancer Intiative",

@@ -1,5 +1,21 @@
 import { LancerCombatTracker } from "./lancer-combat-tracker.js";
 
+declare global {
+  interface DocumentClassConfig {
+    Combat: typeof LancerCombat;
+    Combatant: typeof LancerCombatant;
+  }
+  interface FlagConfig {
+    Combatant: {
+      "lancer-initiative": {
+        activations?: Activations;
+        disposition?: number;
+        dummy?: boolean;
+      };
+    };
+  }
+}
+
 /**
  * Overrides and extends the Combat class to use an activation model instead of
  * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
@@ -9,8 +25,8 @@ export class LancerCombat extends Combat {
   /** @override */
   protected _sortCombatants(a: LancerCombatant, b: LancerCombatant): number {
     const module = LancerCombatTracker.trackerConfig.module;
-    if (<boolean | undefined>a.getFlag(module, "dummy") ?? false) return -1;
-    if (<boolean | undefined>b.getFlag(module, "dummy") ?? false) return 1;
+    if (a.getFlag(<"lancer-initiative">module, "dummy") ?? false) return -1;
+    if (b.getFlag(<"lancer-initiative">module, "dummy") ?? false) return 1;
     // Sort by Players then Neutrals then Hostiles
     const dc = b.disposition - a.disposition;
     if (dc !== 0) return dc;
@@ -19,13 +35,16 @@ export class LancerCombat extends Combat {
 
   /** @override */
   protected async _preCreate(
-    data: ClientDocument["data"],
-    options: unknown,
-    user: User
+    data: Parameters<Combat["_preCreate"]>[0],
+    options: Parameters<Combat["_preCreate"]>[1],
+    user: foundry.documents.BaseUser
   ): Promise<void> {
     const module = LancerCombatTracker.trackerConfig.module;
     const dummy = new CONFIG.Combatant.documentClass(
-      { flags: { [module]: { dummy: true, activations: { max: 0 } } }, hidden: true },
+      {
+        flags: { [<"lancer-initiative">module]: { dummy: true, activations: { max: 0 } } },
+        hidden: true,
+      },
       { parent: this }
     );
     const combatants = this.combatants.map(c => c.toObject());
@@ -39,46 +58,46 @@ export class LancerCombat extends Combat {
    */
   async resetActivations(): Promise<LancerCombatant[]> {
     const module = LancerCombatTracker.trackerConfig.module;
-    const updates = (this.combatants as LancerCombatant[]).map((c: LancerCombatant) => {
+    const updates = this.combatants.map(c => {
       return {
         _id: c.id,
         [`flags.${module}.activations.value`]:
           this.settings.skipDefeated &&
           (c.data.defeated ||
-            c.actor?.effects.find(
-              (e: any) => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId
+            !!c.actor?.effects.find(
+              e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId
             ))
             ? 0
             : c.activations.max ?? 0,
       };
     });
-    // @ts-ignore Conversion is too fraught
-    return this.updateEmbeddedDocuments("Combatant", updates);
+    return <Promise<LancerCombatant[]>>this.updateEmbeddedDocuments("Combatant", updates);
   }
 
   /** @override */
-  async startCombat(): Promise<this> {
+  async startCombat(): Promise<this | undefined> {
     await this.resetActivations();
     return super.startCombat();
   }
 
   /** @override */
-  async nextRound(): Promise<this> {
+  async nextRound(): Promise<this | undefined> {
     await this.resetActivations();
     return super.nextRound();
   }
 
   /** @override */
-  async previousRound(): Promise<this> {
+  async previousRound(): Promise<this | undefined> {
     await this.resetActivations();
     const round = Math.max(this.round - 1, 0);
     let advanceTime = 0;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
+    // @ts-ignore jtfc advanceTime is fucking used in foundry.js
     return this.update({ round, turn: 0 }, { advanceTime });
   }
 
   /** @override */
-  async resetAll(): Promise<this> {
+  async resetAll(): Promise<this | undefined> {
     await this.resetActivations();
     return super.resetAll();
   }
@@ -88,9 +107,11 @@ export class LancerCombat extends Combat {
    * {@link LancerCombat#requestActivation()} if the user does not have
    * permission to modify the combat
    */
-  async activateCombatant(id: string): Promise<this> {
+  async activateCombatant(id: string): Promise<this | undefined> {
     if (!game.user?.isGM) return this.requestActivation(id);
-    const combatant: LancerCombatant | undefined = this.getEmbeddedDocument("Combatant", id);
+    const combatant: LancerCombatant | undefined = <LancerCombatant | undefined>(
+      this.getEmbeddedDocument("Combatant", id)
+    );
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
@@ -112,20 +133,24 @@ export class LancerCombatant extends Combatant {
    * associated token or actor from being modified, even by the GM
    * @override
    */
-  testUserPermission(user: User, _permission: string, _options: unknown): boolean {
-    return this.actor?.testUserPermission(user, "update") ?? user.isGM;
+  testUserPermission(
+    user: User,
+    permission: keyof typeof foundry.CONST.ENTITY_PERMISSIONS | foundry.CONST.EntityPermission,
+    options?: { exact?: boolean }
+  ): boolean {
+    return this.actor?.testUserPermission(user, permission, options) ?? user.isGM;
   }
 
   /** @override */
   prepareDerivedData(): void {
     super.prepareDerivedData();
     const module = LancerCombatTracker.trackerConfig.module;
-    if (this.data.flags?.[module]?.activations?.max === undefined) {
+    if (this.data.flags?.[<"lancer-initiative">module]?.activations?.max === undefined) {
       this.data.update({
         [`flags.${module}.activations`]: {
           max:
             foundry.utils.getProperty(
-              this.actor?.getRollData(),
+              this.actor?.getRollData() ?? {},
               <string>game.settings.get(module, "combat-tracker-activation-path")
             ) ?? 1,
         },
@@ -167,7 +192,7 @@ export class LancerCombatant extends Combatant {
    * Adjusts the number of activations that a combatant can take
    * @param num - The number of maximum activations to add (can be negative)
    */
-  async addActivations(num: number): Promise<this> {
+  async addActivations(num: number): Promise<this | undefined> {
     const module = LancerCombatTracker.trackerConfig.module;
     if (num === 0) return this;
     return this.update({
@@ -182,7 +207,7 @@ export class LancerCombatant extends Combatant {
    * Adjusts the number of current activations that a combatant has
    * @param num - The number of current activations to add (can be negative)
    */
-  async modifyCurrentActivations(num: number): Promise<this> {
+  async modifyCurrentActivations(num: number): Promise<this | undefined> {
     const module = LancerCombatTracker.trackerConfig.module;
     if (num === 0) return this;
     return this.update({

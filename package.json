@@ -1,19 +1,21 @@
 {
   "name": "lancer-initiative",
-  "version": "0.6.0",
+  "version": "0.6.2",
   "description": "Lancer Initiative",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "devDependencies": {
-    "@types/jquery": "^3.5.5",
-    "prettier": "^2.3.0",
-    "typescript": "^4.3.2"
+    "@league-of-foundry-developers/foundry-vtt-types": "^0.8.8-8",
+    "@types/jquery": "^3.5.6",
+    "prettier": "^2.3.2",
+    "typescript": "^4.3.5"
   },
   "scripts": {
     "prepare": "tsc",
     "build:foundryvtt": "tsc --project tsconfig.foundry.json && cp -r ./src/lang ./src/module.json ./src/lancer-initiative.css ./src/templates ./lancer-initiative/",
     "watch": "tsc --project tsconfig.foundry.json --watch"
   },
-  "author": "",
-  "license": ""
+  "author": "Bolts",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/BoltsJ/lancer-initiative.git"
 }

@@ -4,6 +4,7 @@ import { LIForm } from "./module/li-form.js";
 
 type Appearance = typeof LancerCombatTracker["trackerAppearance"];
 const module = "lancer-initiative";
+const templatePath = "modules/lancer-initiative/templates/lancer-combat-tracker.html";
 
 function migrateSettings(): void {
   if (<number>game.settings.get(module, "combat-tracker-migrated-settings") >= 1) return;
@@ -28,6 +29,7 @@ function registerSettings(): void {
   console.log("lancer-initiative | Initializing Lancer Initiative Module");
   const config = LancerCombatTracker.trackerConfig;
   config.module = module;
+  config.templatePath = templatePath;
 
   switch (game.system.id) {
     case "lancer":

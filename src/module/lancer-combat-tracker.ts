@@ -8,11 +8,11 @@ export class LancerCombatTracker extends CombatTracker {
   viewed!: LancerCombat | null;
 
   /** @override */
-  static get defaultOptions(): object {
-    const module = this.trackerConfig?.module;
+  static get defaultOptions(): CombatTracker.Options {
+    const template = this.trackerConfig.templatePath;
     return {
       ...super.defaultOptions,
-      template: `modules/${module}/templates/lancer-combat-tracker.html`,
+      template,
     };
   }
 
@@ -23,7 +23,7 @@ export class LancerCombatTracker extends CombatTracker {
    * updateCombat events being eaten.
    * @override
    */
-  async getData(options?: unknown): Promise<object> {
+  async getData(options?: Application.RenderOptions): Promise<CombatTracker.Data> {
     const config = (this.constructor as typeof LancerCombatTracker).trackerConfig;
     const appearance = (this.constructor as typeof LancerCombatTracker).trackerAppearance;
     const data = (await super.getData(options)) as {
@@ -44,7 +44,9 @@ export class LancerCombatTracker extends CombatTracker {
       [2]: "player",
     };
     data.turns = data.turns.map(t => {
-      const combatant: LancerCombatant | undefined = this.viewed!.getEmbeddedDocument("Combatant", t.id);
+      const combatant: LancerCombatant | undefined = <LancerCombatant>(
+        this.viewed!.getEmbeddedDocument("Combatant", t.id)
+      );
       return {
         ...t,
         css: t.css + " " + disp[combatant?.disposition ?? -2],
@@ -68,7 +70,7 @@ export class LancerCombatTracker extends CombatTracker {
       config.module,
       "combat-tracker-enable-initiative"
     ) as boolean;
-    return data;
+    return <CombatTracker.Data>data;
   }
 
   /** @override */
@@ -92,25 +94,22 @@ export class LancerCombatTracker extends CombatTracker {
   }
 
   protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {
-    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument(
-      "Combatant",
-      li.data("combatant-id")
+    const combatant: LancerCombatant = <LancerCombatant>(
+      this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"))
     );
     await combatant.addActivations(1);
   }
 
   protected async _onRemoveActivation(li: JQuery<HTMLElement>): Promise<void> {
-    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument(
-      "Combatant",
-      li.data("combatant-id")
+    const combatant: LancerCombatant = <LancerCombatant>(
+      this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"))
     );
     await combatant.addActivations(-1);
   }
 
   protected async _onUndoActivation(li: JQuery<HTMLElement>): Promise<void> {
-    const combatant: LancerCombatant = this.viewed!.getEmbeddedDocument(
-      "Combatant",
-      li.data("combatant-id")
+    const combatant: LancerCombatant = <LancerCombatant>(
+      this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"))
     );
     await combatant.modifyCurrentActivations(1);
   }
@@ -164,6 +163,7 @@ export class LancerCombatTracker extends CombatTracker {
    */
   static trackerConfig: LIConfig = {
     module: "",
+    templatePath: "",
     def_appearance: {
       icon: "fas fa-chevron-circle-right",
       icon_size: 1.5,
@@ -176,7 +176,6 @@ export class LancerCombatTracker extends CombatTracker {
   };
 }
 
-// @ts-ignore fuck the police
 Handlebars.registerHelper("lancerinitiative-repeat", function (n, block) {
   let accum = "";
   for (let i = 0; i < n; i++) accum += block.fn(i);
@@ -185,6 +184,7 @@ Handlebars.registerHelper("lancerinitiative-repeat", function (n, block) {
 
 interface LIConfig {
   module: string;
+  templatePath: string;
   def_appearance: {
     icon: string;
     icon_size: number;
