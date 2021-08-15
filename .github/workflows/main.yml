@@ -43,7 +43,7 @@ jobs:
         allowUpdates: true # Set this to false if you want to prevent updating existing releases
         name: ${{ github.event.release.name }}
         draft: false
-        prerelease: false
+        prerelease: true
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: './lancer-initiative/module.json, ./lancer-initiative/module.zip'
         tag: ${{ github.event.release.tag_name }}
