@@ -26,7 +26,7 @@ function migrateSettings(): void {
 }
 
 function registerSettings(): void {
-  console.log("lancer-initiative | Initializing Lancer Initiative Module");
+  console.log(`${module} | Initializing Lancer Initiative Module`);
   const config = LancerCombatTracker.trackerConfig;
   config.module = module;
   config.templatePath = templatePath;
@@ -140,5 +140,21 @@ function setAppearance(val: Partial<Appearance>): void {
   game.combats?.render();
 }
 
+function addMissingDummy(): void {
+  if (!game.user?.isGM) return;
+  game.combats!.forEach(combat => {
+    if (!combat.combatants.find(combatant => !!combatant.getFlag(module, "dummy"))) {
+      console.log(`${module} | Adding missing dummy combatant to combat with id ${combat.id}`);
+      combat.createEmbeddedDocuments("Combatant", [
+        {
+          flags: { [module]: { dummy: true, activations: { max: 0 } } },
+          hidden: true,
+        },
+      ]);
+    }
+  });
+}
+
 Hooks.once("init", registerSettings);
+Hooks.once("ready", addMissingDummy);
 Hooks.once("ready", migrateSettings);
