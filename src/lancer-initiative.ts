@@ -57,6 +57,7 @@ function registerSettings(): void {
     scope: "world",
     config: true,
     type: Boolean,
+    onChange: () => game.combats?.render(),
     default: false,
   });
   game.settings.register(module, "combat-tracker-enable-initiative", {
@@ -65,6 +66,7 @@ function registerSettings(): void {
     scope: "world",
     config: !!CONFIG.Combat.initiative.formula,
     type: Boolean,
+    onChange: () => game.combats?.render(),
     default: false,
   });
   game.settings.register(module, "combat-tracker-activation-path", {
