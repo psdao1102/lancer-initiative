@@ -166,7 +166,7 @@ export class LancerCombatant extends Combatant {
    */
   get activations(): Activations {
     const module = LancerCombatTracker.trackerConfig.module;
-    return <Activations | undefined>this.getFlag(module, "activations") ?? {};
+    return this.getFlag(<"lancer-initiative">module, "activations") ?? {};
   }
 
   /**
@@ -177,7 +177,7 @@ export class LancerCombatant extends Combatant {
   get disposition(): number {
     const module = LancerCombatTracker.trackerConfig.module;
     return (
-      <number | undefined>this.getFlag(module, "disposition") ??
+      this.getFlag(<"lancer-initiative">module, "disposition") ??
       (this.actor?.hasPlayerOwner ?? false
         ? 2
         : this.token?.data.disposition ?? this.actor?.data.token.disposition ?? -2)
@@ -217,7 +217,7 @@ export class LancerCombatant extends Combatant {
 /**
  * Interface for the activations object
  */
-export interface Activations {
+interface Activations {
   max?: number;
   value?: number;
 }

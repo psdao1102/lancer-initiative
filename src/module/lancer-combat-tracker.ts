@@ -1,12 +1,10 @@
-import { LancerCombat, LancerCombatant } from "./lancer-combat.js";
+import type { LancerCombatant } from "./lancer-combat.js";
 
 /**
  * Overrides the display of the combat and turn order tab to add activation
  * buttons and either move or remove the initiative button
  */
 export class LancerCombatTracker extends CombatTracker {
-  viewed!: LancerCombat | null;
-
   /** @override */
   static get defaultOptions(): CombatTracker.Options {
     const template = this.trackerConfig.templatePath;
@@ -55,7 +53,6 @@ export class LancerCombatTracker extends CombatTracker {
       };
     });
     if (sort) {
-      // Not sure why these need to be annotated
       data.turns.sort(function (a, b) {
         const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
         const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
@@ -162,7 +159,7 @@ export class LancerCombatTracker extends CombatTracker {
    * Holds the default configuration of the module
    */
   static trackerConfig: LIConfig = {
-    module: "",
+    module: "lancer-initiative",
     templatePath: "",
     def_appearance: {
       icon: "fas fa-chevron-circle-right",
@@ -183,7 +180,7 @@ Handlebars.registerHelper("lancerinitiative-repeat", function (n, block) {
 });
 
 interface LIConfig {
-  module: string;
+  module: "lancer-initiative";
   templatePath: string;
   def_appearance: {
     icon: string;
