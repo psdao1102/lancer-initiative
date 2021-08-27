@@ -160,3 +160,11 @@ function addMissingDummy(): void {
 Hooks.once("init", registerSettings);
 Hooks.once("ready", addMissingDummy);
 Hooks.once("ready", migrateSettings);
+
+declare global {
+  interface DocumentClassConfig {
+    Combat: typeof LancerCombat;
+    Combatant: typeof LancerCombatant;
+  }
+}
+

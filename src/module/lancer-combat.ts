@@ -1,10 +1,6 @@
 import { LancerCombatTracker } from "./lancer-combat-tracker.js";
 
 declare global {
-  interface DocumentClassConfig {
-    Combat: typeof LancerCombat;
-    Combatant: typeof LancerCombatant;
-  }
   interface FlagConfig {
     Combatant: {
       "lancer-initiative": {
