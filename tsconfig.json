@@ -4,6 +4,7 @@
     "outDir": "./dist/",
     "module": "es6",
     "sourceMap": true,
+    "inlineSources": true,
     "lib": ["ES6", "ES2017", "DOM"],
     "types": ["@league-of-foundry-developers/foundry-vtt-types"],
     "moduleResolution": "node",
