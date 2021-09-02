@@ -91,10 +91,10 @@
 
             <div class="token-initiative">
                 {{#lancerinitiative-repeat this.pending}}
-                <a class="{{../../icon_class}}"></a>
+                <a class="{{../../icon_class}} lancer-combat-control" data-control="activateCombatant"></a>
                 {{/lancerinitiative-repeat}}
                 {{#lancerinitiative-repeat this.finished}}
-                <i class="{{../../icon_class}} done"></i>
+                <i class="{{../../icon_class}} done lancer-combat-control" data-control="deactivateCombatant"></i>
                 {{/lancerinitiative-repeat}}
             </div>
         </li>
@@ -106,17 +106,13 @@
         {{#if user.isGM}}
             {{#if round}}
             <a class="combat-control" title="{{localize 'COMBAT.RoundPrev'}}" data-control="previousRound"><i class="fas fa-step-backward"></i></a>
-            <a class="combat-control" title="{{localize 'COMBAT.TurnPrev'}}" data-control="previousTurn"><i class="fas fa-arrow-left"></i></a>
             <a class="combat-control center" title="{{localize 'COMBAT.End'}}" data-control="endCombat">{{localize 'COMBAT.End'}}</a>
-            <a class="combat-control" title="{{localize 'COMBAT.TurnNext'}}" data-control="nextTurn"><i class="fas fa-arrow-right"></i></a>
             <a class="combat-control" title="{{localize 'COMBAT.RoundNext'}}" data-control="nextRound"><i class="fas fa-step-forward"></i></a>
             {{else}}
             <a class="combat-control center" title="{{localize 'COMBAT.Begin'}}" data-control="startCombat">{{localize 'COMBAT.Begin'}}</a>
             {{/if}}
         {{else if control}}
-        <a class="combat-control" title="{{localize 'COMBAT.TurnPrev'}}" data-control="previousTurn"><i class="fas fa-arrow-left"></i></a>
         <a class="combat-control center" title="{{localize 'COMBAT.TurnEnd'}}" data-control="nextTurn">{{localize 'COMBAT.TurnEnd'}}</a>
-        <a class="combat-control" title="{{localize 'COMBAT.TurnNext'}}" data-control="nextTurn"><i class="fas fa-arrow-right"></i></a>
         {{/if}}
     {{/if}}
     </nav>

@@ -82,6 +82,14 @@ export class LancerCombat extends Combat {
     return super.nextRound();
   }
 
+  /**
+   * Ends the current turn without starting a new one
+   * @override
+   */
+  async nextTurn(): Promise<this | undefined> {
+    return this.update({ turn: 0 });
+  }
+
   /** @override */
   async previousRound(): Promise<this | undefined> {
     await this.resetActivations();
@@ -112,6 +120,18 @@ export class LancerCombat extends Combat {
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
     return this.update({ turn });
+  }
+
+  /**
+   * Sets the active turn back to 0 (no active unit) if the passed id
+   * corresponds to the current turn and the user has ownership of the
+   * combatant.
+   */
+  async deactivateCombatant(id: string) {
+    const turn = this.turns.findIndex(t => t.id === id);
+    if (turn !== this.turn) return this;
+    if (!this.turns[turn].testUserPermission(game.user!, "OWNER") && !game.user?.isGM) return this;
+    return this.nextTurn();
   }
 
   /**

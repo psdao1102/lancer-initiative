@@ -73,7 +73,7 @@ export class LancerCombatTracker extends CombatTracker {
   /** @override */
   activateListeners(html: JQuery<HTMLElement>): void {
     super.activateListeners(html);
-    html.find(".token-initiative").on("click", this._onActivateCombatant.bind(this));
+    html.find(".lancer-combat-control").on("click", this._onActivateCombatant.bind(this));
   }
 
   /**
@@ -87,7 +87,14 @@ export class LancerCombatTracker extends CombatTracker {
     const btn = event.currentTarget;
     const id = btn.closest<HTMLElement>(".combatant")?.dataset.combatantId;
     if (!id) return;
-    await this.viewed!.activateCombatant(id);
+    switch (btn.dataset.control) {
+      case "deactivateCombatant":
+        await this.viewed!.deactivateCombatant(id);
+        break;
+      case "activateCombatant":
+        await this.viewed!.activateCombatant(id);
+        break;
+    }
   }
 
   protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {

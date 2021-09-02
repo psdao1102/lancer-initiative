@@ -71,11 +71,6 @@ li.combatant.enemy {
   text-decoration: inherit;
 }
 
-#combat #combat-controls .combat-control[data-control="previousTurn"],
-#combat #combat-controls .combat-control[data-control="nextTurn"] {
-  display: none !important;
-}
-
 #lancer-initiative-settings input[type="color"] {
   flex: 0 0 3rem;
   cursor: pointer;
