@@ -6,10 +6,11 @@ type Appearance = NonNullable<typeof CONFIG.LancerInitiative.def_appearance>;
  * tracker
  */
 export class LancerInitiativeConfigForm extends FormApplication<
-  FormApplication.Options,
-  Appearance
+  FormApplicationOptions,
+  Appearance,
+  undefined
 > {
-  static override get defaultOptions(): FormApplication.Options {
+  static override get defaultOptions(): FormApplicationOptions {
     return {
       ...super.defaultOptions,
       title: "Lancer Intiative",
