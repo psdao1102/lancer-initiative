@@ -1,4 +1,4 @@
-import type { LancerInitiativeConfig } from "lancer-initiative";
+import type { LancerCombat, LancerCombatant, LancerInitiativeConfig } from "lancer-initiative";
 
 declare global {
   interface LenientGlobalVariableTypes {
