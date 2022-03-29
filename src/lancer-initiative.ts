@@ -93,7 +93,7 @@ function registerSettings(): void {
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Call hooks to signal other modules of the initialization
-  Hooks.callAll("LancerIntitaitveInit");
+  Hooks.callAll("LancerInitiativeInit");
 
   // Set the css vars
   setAppearance(getTrackerAppearance());
