@@ -12,7 +12,7 @@ jobs:
     - uses: actions/setup-node@v1
 
     # Run the compilation step
-    - run: npm install
+    - run: npm clean-install
     - run: npm run build
 
     # Remove the 'v' from the tag for versioning
