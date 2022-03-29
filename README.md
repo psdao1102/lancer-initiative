@@ -27,5 +27,6 @@ Known issues
 ------------
 
  * **Status Icon Counters** does not track turns properly when used with this module.
- * **Turn Marker** does not properly handle the blank combatant at the start of the turn order, causing the marker to stay on the previous unit and an error to be thrown.
+ * **Turn Marker** and **Next-Up** do not properly handle the turn being chaned to null on new rounds and fail to properly update the marker.
+ * **Monk's Little Details** does not reset start position markers on round change, and doesn't play new round sound.
 
