@@ -2,7 +2,6 @@ import {
   LancerCombat,
   LancerCombatTracker,
   LancerCombatant,
-  addMissingDummy,
   getTrackerAppearance,
   setAppearance,
 } from "lancer-initiative";
@@ -100,4 +99,3 @@ function registerSettings(): void {
 }
 
 Hooks.once("init", registerSettings);
-Hooks.once("ready", addMissingDummy);
