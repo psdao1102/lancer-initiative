@@ -23,7 +23,7 @@ function registerSettings(): void {
       `${module} | Lancer Intitiative already initiatilized, does your system implement it?`
     );
   }
-  const config = (CONFIG.LancerInitiative = {
+  CONFIG.LancerInitiative = {
     module,
     templatePath,
     def_appearance: {
@@ -35,8 +35,7 @@ function registerSettings(): void {
       enemy_color: "#d98f30",
       done_color: "#444444",
     },
-    activations: "derived.mm.Activations",
-  });
+  };
   Object.defineProperty(CONFIG.LancerInitiative, "module", { writable: false });
 
   const old_combat = CONFIG.Combat.documentClass;
@@ -47,10 +46,6 @@ function registerSettings(): void {
   CONFIG.ui.combat = LancerCombatTracker;
 
   switch (game.system.id) {
-    case "lancer":
-      config.def_appearance.icon = "cci cci-activate";
-      config.def_appearance.icon_size = 2;
-      break;
     case "starwarsffg":
       import("./starwarsffg").then(m => m.setup(old_combat));
       break;
