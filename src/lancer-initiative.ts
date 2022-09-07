@@ -65,15 +65,20 @@ function registerSettings(): void {
     onChange: setAppearance,
     default: {},
   });
+  // Allows combat tracker sorting to be toggled. Optional for downstreams.
   game.settings.register(module, "combat-tracker-sort", {
     name: "LANCERINITIATIVE.SortTracker",
     hint: "LANCERINITIATIVE.SortTrackerDesc",
     scope: "world",
     config: true,
     type: Boolean,
-    onChange: () => game.combats?.render(),
+    onChange: v => {
+      CONFIG.LancerInitiative.sort = v;
+      game.combats?.render();
+    },
     default: true,
   });
+  CONFIG.LancerInitiative.sort = game.settings.get(module, "combat-tracker-sort");
   // Allows initiative rolling to be toggled. Optional for downstreams.
   game.settings.register(module, "combat-tracker-enable-initiative", {
     name: "LANCERINITIATIVE.EnableInitiative",
