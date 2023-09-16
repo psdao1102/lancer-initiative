@@ -15,7 +15,7 @@ export class LancerInitiativeConfigForm extends FormApplication<
       ...super.defaultOptions,
       title: "Lancer Intiative",
       id: "lancer-initiative-settings",
-      template: "modules/lancer-initiative/templates/lancer-initiative-settings.html",
+      template: "modules/lancer-initiative/templates/lancer-initiative-settings.hbs",
       width: 350,
     };
   }
