@@ -1,14 +1,48 @@
 import {
   LancerCombat,
-  LancerCombatTracker,
   LancerCombatant,
+  LancerInitiativeConfig,
   getTrackerAppearance,
-  setAppearance,
 } from "lancer-initiative";
+import { LancerCombatTracker } from "./lancer-combat-tracker";
 import { LancerInitiativeConfigForm } from "./li-form";
 
 const module = "lancer-initiative";
 const templatePath = "modules/lancer-initiative/templates/lancer-combat-tracker.hbs";
+
+export function setAppearance(val: Partial<LancerInitiativeConfig["def_appearance"]>): void {
+  const defaults = CONFIG.LancerInitiative.def_appearance!;
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-icon-size",
+    `${val?.icon_size ?? defaults.icon_size}rem`
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-player-color",
+    val?.player_color ?? defaults.player_color
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-friendly-color",
+    val?.friendly_color ?? defaults.friendly_color
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-neutral-color",
+    val?.neutral_color ?? defaults.neutral_color
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-enemy-color",
+    val?.enemy_color ?? defaults.enemy_color
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-secret-color",
+    // @ts-ignore
+    val?.secret_color ?? defaults.secret_color
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-done-color",
+    val?.done_color ?? defaults.done_color
+  );
+  game.combats?.render();
+}
 
 function registerSettings(): void {
   console.log(`${module} | Initializing Lancer Initiative Module`);
@@ -33,6 +67,8 @@ function registerSettings(): void {
       friendly_color: "#44abe0",
       neutral_color: "#146464",
       enemy_color: "#d98f30",
+      // @ts-ignore
+      secret_color: "#552f8c",
       done_color: "#444444",
     },
   };
@@ -44,13 +80,6 @@ function registerSettings(): void {
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
   CONFIG.ui.combat = LancerCombatTracker;
-
-  switch (game.system.id) {
-    case "starwarsffg":
-      // import("./starwarsffg").then(m => m.setup(old_combat));
-      break;
-    default:
-  }
 
   game.settings.registerMenu(module, "lancerInitiative", {
     name: "LANCERINITIATIVE.IconSettingsMenu",

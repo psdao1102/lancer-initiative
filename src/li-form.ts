@@ -44,7 +44,7 @@ export class LancerInitiativeConfigForm extends FormApplication<
     html.find('input[type="color"]').on("mouseenter mouseleave", e => {
       html.find("a.preview").css("color", $(e.target).val() as string);
       if ($(e.target).attr("name") === "done_selector") return;
-      html.find("li.combatant").css("border-color", $(e.target).val() as string);
+      html.find("div.fake-combatant").css("border-color", $(e.target).val() as string);
     });
 
     html.find('button[name="reset"]').on("click", this.resetSettings.bind(this));

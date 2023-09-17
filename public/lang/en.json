@@ -13,6 +13,8 @@
     "NeutralColorDesc": "Default: #146464",
     "EnemyColor": "Enemy Color",
     "EnemyColorDesc": "Default: #d98f30",
+    "SecretColor": "Secret Color",
+    "SecretColorDesc": "Default: #552f8c",
     "DoneColor": "Inactive Color",
     "DoneColorDesc": "Default: #444444",
     "ActivatedLast": "Activated Units Last",
