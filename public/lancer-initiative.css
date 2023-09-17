@@ -4,6 +4,7 @@
   --lancer-initiative-friendly-color: #000000;
   --lancer-initiative-neutral-color: #000000;
   --lancer-initiative-enemy-color: #000000;
+  --lancer-initiative-secret-color: #000000;
   --lancer-initiative-done-color: #000000;
 }
 
@@ -33,6 +34,10 @@ li.combatant.neutral {
 
 li.combatant.enemy {
   border-color: var(--lancer-initiative-enemy-color) !important;
+}
+
+li.combatant.secret {
+  border-color: var(--lancer-initiative-secret-color) !important;
 }
 
 [data-tab=combat] #combat-tracker .combatant .token-initiative {
@@ -66,6 +71,10 @@ li.combatant.enemy {
   color: var(--lancer-initiative-enemy-color);
 }
 
+[data-tab=combat] #combat-tracker .combatant.secret .token-initiative a {
+  color: var(--lancer-initiative-secret-color);
+}
+
 [data-tab=combat] #combat-tracker li.combatant.turn-done {
   color: inherit;
   text-decoration: inherit;
@@ -82,8 +91,35 @@ li.combatant.enemy {
 }
 
 #lancer-initiative-settings .token-image {
-  height: 48px;
-  width: 48px;
-  max-width: 48px;
+  height: var(--sidebar-item-height);
+  width: var(--sidebar-item-height);
+  max-width: var(--sidebar-item-height);
   border: 0px;
+}
+
+#lancer-initiative-settings .fake-combatant {
+  border: 3px;
+  padding-right: 0.5em;
+  border-top: 0px;
+  border-bottom: 0px;
+  border-radius: 5px;
+  border-style: solid;
+}
+
+#lancer-initiative-settings .fake-combatant h4 {
+  text-shadow: 1px 1px 4px var(--color-shadow-dark);
+  flex: 0 0 24px;
+  line-height: 28px;
+  margin: 0 0 2px;
+  padding: 0;
+  font-weight: normal;
+}
+
+#lancer-initiative-settings .fake-combatant .token-initiative {
+  display: flex;
+  position: relative;
+  flex: 0 0 auto;
+  text-align: center;
+  align-items: center;
+  padding-left: 0.5em;
 }
